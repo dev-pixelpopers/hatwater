@@ -1,0 +1,1 @@
+import{P as e,W as t}from"./chunk-QUQL4437-B4ZHyt_Z.js";import{t as n}from"./jsx-runtime-BTOkApy9.js";import{t as r}from"./CartMain-C0z75oYZ.js";var i=n(),a=()=>[{title:`Hydrogen | Cart`}],o=t(function(){let t=e();return(0,i.jsxs)(`div`,{className:`cart`,children:[(0,i.jsx)(`h1`,{children:`Cart`}),(0,i.jsx)(r,{layout:`page`,cart:t})]})});export{o as default,a as meta};
