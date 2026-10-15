@@ -1,0 +1,184 @@
+﻿/**
+ * Configure Tailwind v4 in this file using CSS variables and directives:
+ * https://tailwindcss.com/docs/v4-beta#css-first-configuration
+ */
+
+@import 'tailwindcss';
+
+/* ------------------------------------------------------------------
+ * Hatwater House - design tokens (pulled from Figma node 176:209)
+ * ------------------------------------------------------------------ */
+@theme {
+  --color-hw-espresso: #553119;
+  --color-hw-cocoa: #643c27;
+  --color-hw-chestnut: #714b32;
+  --color-hw-saddle: #7e512e;
+  --color-hw-copper: #a77243;
+  --color-hw-rust: #bb6c37;
+  --color-hw-taupe: #6d5b4a;
+  --color-hw-sand: #d2c6b6;
+  --color-hw-bone: #e9e2d8;
+  --color-hw-mist: #e9e9eb;
+  --color-hw-linen: #efeae1;
+  --color-hw-cream: #faf7f2;
+  --color-hw-fog: #ececec;
+  --color-hw-ink: #2b2b2b;
+  --color-hw-rule: #d9d9d9;
+
+  --font-display: 'Valturin', 'Bodoni Moda', 'Bodoni 72', Didot, Georgia, serif;
+  --font-grotesk: 'Neue Haas Grotesk Text', 'Haas Grot Text', 'Helvetica Neue',
+    Helvetica, Arial, sans-serif;
+  --font-grotesk-display: 'Neue Haas Grotesk Display', 'Haas Grot Disp',
+    'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+/*
+ * The Figma file uses licensed typefaces (Valturin, Neue Haas Grotesk).
+ * Drop the licensed .woff2 files into public/assets/fonts/ with these names;
+ * until then the fallbacks declared in --font-* are used.
+ */
+@font-face {
+  font-family: 'Valturin';
+  src:
+    local('Valturin'),
+    url('/assets/fonts/Valturin-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Neue Haas Grotesk Text';
+  src:
+    local('Neue Haas Grotesk Text Pro Roman'),
+    url('/assets/fonts/NeueHaasGroteskText-Roman.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Neue Haas Grotesk Text';
+  src:
+    local('Neue Haas Grotesk Text Pro Medium'),
+    url('/assets/fonts/NeueHaasGroteskText-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Neue Haas Grotesk Text';
+  src:
+    local('Neue Haas Grotesk Text Pro Bold'),
+    url('/assets/fonts/NeueHaasGroteskText-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Neue Haas Grotesk Display';
+  src:
+    local('Neue Haas Grotesk Display Pro Roman'),
+    url('/assets/fonts/NeueHaasGroteskDisplay-Roman.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Neue Haas Grotesk Display';
+  src:
+    local('Neue Haas Grotesk Display Pro Medium'),
+    url('/assets/fonts/NeueHaasGroteskDisplay-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ------------------------------------------------------------------
+ * Artboard scale
+ *
+ * Every frame in the Figma prototype is a 1919 x 994 artboard. Inside `.hw`
+ * the Tailwind spacing unit is redefined as "one Figma pixel", scaled so the
+ * artboard always fits the viewport. `w-921`, `top-144`, `gap-12` etc. map
+ * 1:1 to the values in Figma.
+ * ------------------------------------------------------------------ */
+@utility hw {
+  --spacing: min(calc(100vw / 1919), calc(100svh / 994));
+  overflow-x: clip;
+}
+
+/* Font size / line height / radius / border width in Figma pixels. */
+@utility fs-* {
+  font-size: calc(var(--spacing) * --value(number));
+}
+@utility lh-* {
+  line-height: calc(var(--spacing) * --value(number));
+}
+@utility r-* {
+  border-radius: calc(var(--spacing) * --value(number));
+}
+@utility bw-* {
+  border-width: calc(var(--spacing) * --value(number));
+}
+
+/* A layer that ignores the artboard and covers the whole sticky stage. */
+@utility hw-bleed {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 100vw;
+  height: 100svh;
+  translate: -50% -50%;
+}
+
+/* Radial gradient used by the hero panel, preloader dot and loader bar. */
+@utility hw-panel-gradient {
+  background-image: radial-gradient(
+    50% 40.76% at 50% 50%,
+    var(--color-hw-copper) 0%,
+    var(--color-hw-saddle) 50%,
+    var(--color-hw-espresso) 100%
+  );
+}
+
+@utility hw-footer-gradient {
+  background-image: radial-gradient(
+    22.1% 41% at 50% 50%,
+    var(--color-hw-rust) 0%,
+    #884e28 48.3%,
+    var(--color-hw-espresso) 96.6%
+  );
+}
+
+/* Masked solid-colour icon/logo (Figma "Mask group" layers). */
+@utility hw-mask {
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  -webkit-mask-size: contain;
+}
+
+/* "Hatwater House" wordmark gradient. */
+@utility hw-wordmark {
+  background-image: linear-gradient(
+    180deg,
+    var(--color-hw-linen) 0%,
+    #a39181 100%
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+@layer components {
+  /* app.css gives every <img> a 4px radius; the artboard sets its own. */
+  .hw img {
+    border-radius: 0;
+    max-width: none;
+  }
+}
+
+html.hw-scroll-lock,
+html.hw-scroll-lock body {
+  overflow: hidden;
+}
