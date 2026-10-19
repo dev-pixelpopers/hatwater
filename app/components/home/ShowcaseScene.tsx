@@ -1,4 +1,5 @@
-import {forwardRef, useCallback, useRef} from 'react';
+import {forwardRef, useCallback, useMemo, useRef, useState} from 'react';
+import type {HomepageProductFragment} from 'storefrontapi.generated';
 import {
   addClip,
   artX,
@@ -14,6 +15,7 @@ import {CollectionLayer} from './CollectionLayer';
 import {
   CAROUSEL,
   CAROUSEL_STEPS,
+  collectionItems,
   FINAL_HAT_ID,
   HATS,
   HERO_HAT_ID,
@@ -40,8 +42,34 @@ const HAT_CLIP = {chair: inset(0, 98.28), card: inset(0, 67.95)};
 const CHAIR_CLIP = {hidden: inset(0, 94.91)};
 const ABOUT_CLIP = {hidden: inset(0, 0, 90.54)};
 const TITLE_CLIP = {hidden: inset(0, 0, 85.34)};
+/**
+ * The frosted panel (top 49, 432 tall) sits in the 518px copy box. It clips
+ * itself in step with the copy reveal (box 49 -> 518px, linear), so its own
+ * reveal finishes after 432 / 469 of that tween.
+ */
+const BLUR_CLIP = {hidden: inset(0, 0, 100), cleared: inset(100, 0, 0)};
+const BLUR_REVEAL_DURATION = 432 / (518 - 49);
 
 const hatSelector = (id: string) => `[data-hat="${id}"]`;
+
+/** Index of the `hat-N` label closest to `time` on the showcase timeline. */
+function nearestHat(tl: gsap.core.Timeline, time: number) {
+  let best = 0;
+  for (let step = 1; step <= CAROUSEL_STEPS; step++) {
+    if (
+      Math.abs(tl.labels[`hat-${step}`] - time) <
+      Math.abs(tl.labels[`hat-${best}`] - time)
+    ) {
+      best = step;
+    }
+  }
+  return best;
+}
+
+type ShowcaseSceneProps = {
+  /** Live products for the collection carousel; empty uses the static copy. */
+  products: HomepageProductFragment[];
+};
 
 function placeHat(item: CarouselHat, slotIndex: number) {
   const slot = slotAt(slotIndex);
@@ -61,11 +89,14 @@ function placeHat(item: CarouselHat, slotIndex: number) {
  * for the page scrolling between frames; the hero hat lives outside the
  * track so it can leave the chair and land in the collection ring.
  */
-export const ShowcaseScene = forwardRef<HeroIntroHandle>(
-  function ShowcaseScene(_, heroRef) {
+export const ShowcaseScene = forwardRef<HeroIntroHandle, ShowcaseSceneProps>(
+  function ShowcaseScene({products}, heroRef) {
     const wrapperRef = useRef<HTMLElement>(null);
     const artboardRef = useRef<HTMLDivElement>(null);
     const timelineRef = useRef<gsap.core.Timeline | null>(null);
+    const items = useMemo(() => collectionItems(products), [products]);
+    // Which carousel step is in the ring; drives the product CTA.
+    const [activeHat, setActiveHat] = useState(0);
 
     useGsapContext(wrapperRef, () => {
       const wrapper = wrapperRef.current;
@@ -80,7 +111,9 @@ export const ShowcaseScene = forwardRef<HeroIntroHandle>(
       const hatClip = '[data-anim="hat-clip"]';
       const chairClip = '[data-anim="chair-clip"]';
       const aboutCopy = '[data-anim="about-copy"]';
+      const aboutBlur = '[data-anim="about-blur"]';
       const names = '[data-anim="collection-names"]';
+      const cta = '[data-anim="collection-cta"]';
       const classicCard = '[data-card="classic"]';
       const customCard = '[data-card="custom"]';
 
@@ -104,6 +137,7 @@ export const ShowcaseScene = forwardRef<HeroIntroHandle>(
       gsap.set(hatClip, {clipPath: HAT_CLIP.chair});
       gsap.set(chairClip, {clipPath: CHAIR_CLIP.hidden});
       gsap.set(aboutCopy, {clipPath: ABOUT_CLIP.hidden});
+      gsap.set(aboutBlur, {clipPath: BLUR_CLIP.hidden, '--blur-strength': 1});
       gsap.set(rings, {scale: 0.157, transformOrigin: '50% 50%'});
       gsap.set(title, {clipPath: TITLE_CLIP.hidden});
       gsap.set(names, {yPercent: ofSize(200, NAMES_HEIGHT)});
@@ -127,13 +161,18 @@ export const ShowcaseScene = forwardRef<HeroIntroHandle>(
       addClip(tl, chairClip, CHAIR_CLIP.hidden, inset(), 0, {ease: 'none'});
       addClip(tl, hatClip, HAT_CLIP.chair, HAT_CLIP.card, 0, {ease: 'none'});
       addClip(tl, aboutCopy, ABOUT_CLIP.hidden, inset(), 0, {ease: 'none'});
+      addClip(tl, aboutBlur, BLUR_CLIP.hidden, inset(), 0, {
+        duration: BLUR_REVEAL_DURATION,
+        ease: 'none',
+      });
 
-      // Variant5 -> Variant6: the frosted panel slides down, un-blurring the copy.
-      tl.to(
-        '[data-anim="about-blur"]',
-        {yPercent: ofSize(459, 432), ease: 'none'},
-        1,
-      );
+      // Variant5 -> Variant6: the frosted panel wipes down and thaws,
+      // un-blurring the copy. Clipping its top edge reads like the original
+      // slide without a transform, and the blur itself scrubs to zero.
+      addClip(tl, aboutBlur, inset(), BLUR_CLIP.cleared, 1, {
+        '--blur-strength': 0,
+        ease: 'none',
+      });
 
       // Variant6 -> Variant7: card leaves, the hat flies into the centre.
       addClip(tl, hatClip, HAT_CLIP.card, inset(), 2, {
@@ -155,7 +194,8 @@ export const ShowcaseScene = forwardRef<HeroIntroHandle>(
       tl.addLabel('hat-0', CAROUSEL_START + 1)
         .to('[data-anim="collection-bg"]', {autoAlpha: 1}, CAROUSEL_START)
         .to(rings, {scale: 1, autoAlpha: 1}, CAROUSEL_START)
-        .to(names, {yPercent: 0, autoAlpha: 1}, CAROUSEL_START);
+        .to(names, {yPercent: 0, autoAlpha: 1}, CAROUSEL_START)
+        .to(cta, {autoAlpha: 1}, CAROUSEL_START);
       addClip(tl, title, TITLE_CLIP.hidden, inset(), CAROUSEL_START, {
         autoAlpha: 1,
       });
@@ -182,7 +222,7 @@ export const ShowcaseScene = forwardRef<HeroIntroHandle>(
         {autoAlpha: 0},
         outro,
       )
-        .to([title, names], {autoAlpha: 0}, outro)
+        .to([title, names, cta], {autoAlpha: 0}, outro)
         .to(finalHat, {rotation: -2}, outro);
 
       // Variant13 (192:4704): ring blows out, hat flies off, craftsman card fades in.
@@ -213,6 +253,8 @@ export const ShowcaseScene = forwardRef<HeroIntroHandle>(
         outro + 3,
       );
       tl.to({}, {duration: END_HOLD});
+      // setState bails out when the step is unchanged, so this is cheap.
+      tl.eventCallback('onUpdate', () => setActiveHat(nearestHat(tl, tl.time())));
 
       timelineRef.current = tl;
       return () => {
@@ -224,20 +266,12 @@ export const ShowcaseScene = forwardRef<HeroIntroHandle>(
       const tl = timelineRef.current;
       const trigger = tl?.scrollTrigger;
       if (!tl || !trigger) return;
-      const now = trigger.progress * tl.duration();
-      const labels = Array.from(
-        {length: CAROUSEL_STEPS + 1},
-        (_, i) => `hat-${i}`,
-      );
-      const times = labels.map((label) => tl.labels[label]);
-      const current = times.reduce(
-        (best, time, index) =>
-          Math.abs(time - now) < Math.abs(times[best] - now) ? index : best,
-        0,
-      );
-      const target =
-        labels[Math.min(Math.max(current + direction, 0), labels.length - 1)];
-      window.scrollTo({top: trigger.labelToScroll(target), behavior: 'smooth'});
+      const current = nearestHat(tl, trigger.progress * tl.duration());
+      const target = Math.min(Math.max(current + direction, 0), CAROUSEL_STEPS);
+      window.scrollTo({
+        top: trigger.labelToScroll(`hat-${target}`),
+        behavior: 'smooth',
+      });
     }, []);
 
     return (
@@ -253,7 +287,12 @@ export const ShowcaseScene = forwardRef<HeroIntroHandle>(
           <AboutCard />
         </div>
 
-        <CollectionLayer onPrev={() => goToHat(-1)} onNext={() => goToHat(1)} />
+        <CollectionLayer
+          items={items}
+          activeIndex={activeHat}
+          onPrev={() => goToHat(-1)}
+          onNext={() => goToHat(1)}
+        />
 
         <FeatureCards />
 

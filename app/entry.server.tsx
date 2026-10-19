@@ -15,6 +15,10 @@ export default async function handleRequest(
   context: HydrogenRouterContextProvider,
 ) {
   const {nonce, header, NonceProvider} = createContentSecurityPolicy({
+    // Product media is served from the Shopify CDN. These directives are not
+    // merged with Hydrogen's defaults, so 'self' and data: are listed too.
+    imgSrc: ["'self'", 'data:', 'https://cdn.shopify.com'],
+    mediaSrc: ["'self'", 'https://cdn.shopify.com'],
     shop: {
       checkoutDomain: context.env.PUBLIC_CHECKOUT_DOMAIN,
       storeDomain: context.env.PUBLIC_STORE_DOMAIN,

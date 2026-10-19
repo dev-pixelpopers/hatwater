@@ -34,14 +34,13 @@
 
 /*
  * The Figma file uses licensed typefaces (Valturin, Neue Haas Grotesk).
- * Drop the licensed .woff2 files into public/assets/fonts/ with these names;
- * until then the fallbacks declared in --font-* are used.
+ * Valturin ships in public/assets/fonts/ (preloaded in root.tsx). Drop the
+ * Neue Haas .woff2 files there with these names; until then the fallbacks
+ * declared in --font-* are used.
  */
 @font-face {
   font-family: 'Valturin';
-  src:
-    local('Valturin'),
-    url('/assets/fonts/Valturin-Regular.woff2') format('woff2');
+  src: url('/assets/fonts/Valturin-Regular.woff2') format('woff2');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -146,6 +145,17 @@
     #884e28 48.3%,
     var(--color-hw-espresso) 96.6%
   );
+}
+
+/*
+ * Frosted glass (Figma 16px background blur). GSAP scrubs --blur-strength
+ * (0 -> 1) rather than the filter itself so both properties interpolate
+ * smoothly in every engine. Needs a translucent background to show.
+ */
+@utility hw-frost {
+  --blur-amount: calc(var(--spacing) * 16 * var(--blur-strength, 1));
+  -webkit-backdrop-filter: blur(var(--blur-amount));
+  backdrop-filter: blur(var(--blur-amount));
 }
 
 /* Masked solid-colour icon/logo (Figma "Mask group" layers). */

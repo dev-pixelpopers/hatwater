@@ -31,6 +31,8 @@ const COUNTER_STEPS = [
 ];
 /** Height of one counter row (and of its clipping window) in Figma pixels. */
 const COUNTER_LINE = 100;
+/** Counter + bar run time, matched to preloader-video.mp4 (~3.9s). */
+const COUNT_DURATION = 3.6;
 
 /**
  * Panel geometry in the hero frame (Figma "Rectangle 32"). Like the hero
@@ -46,8 +48,9 @@ type PreloaderProps = {
 };
 
 /**
- * Time-based loader (Figma variants "Default" -> "Variant2"): the counter
- * rolls 001 -> 100, then the copper dot expands into the hero panel.
+ * Time-based loader (Figma variants "Default" -> "Variant2"): the hat clip
+ * plays while the counter rolls 001 -> 100 and the bar fills alongside it,
+ * then the copper dot expands into the hero panel.
  */
 export function Preloader({onComplete}: PreloaderProps) {
   const rootRef = useRef<HTMLDivElement>(null);
@@ -79,15 +82,31 @@ export function Preloader({onComplete}: PreloaderProps) {
       },
     });
 
+    const stepDuration = COUNT_DURATION / (COUNTER_STEPS.length - 1);
+
     tl.to('[data-anim="counter"]', {
       // The list is COUNTER_STEPS.length lines tall; move it up one line per step.
       yPercent: -ofSize(
         (COUNTER_STEPS.length - 1) * COUNTER_LINE,
         COUNTER_STEPS.length * COUNTER_LINE,
       ),
-      duration: 2.4,
+      duration: COUNT_DURATION,
       ease: `steps(${COUNTER_STEPS.length - 1})`,
-    }).fromTo(
+    })
+      // The bar runs to each counter value as that value rolls in.
+      .fromTo(
+        '[data-anim="bar"]',
+        {scaleX: Number(COUNTER_STEPS[0]) / 100},
+        {
+          keyframes: COUNTER_STEPS.slice(1).map((step) => ({
+            scaleX: Number(step) / 100,
+            duration: stepDuration,
+            ease: 'power1.out',
+          })),
+        },
+        0,
+      )
+      .fromTo(
       '[data-anim="seed"]',
       {
         left: artX(DOT.left),
@@ -120,8 +139,23 @@ export function Preloader({onComplete}: PreloaderProps) {
     >
       <div ref={artboardRef} className="relative h-994 w-1919 shrink-0">
         {/* Progress row (Figma "Component 2") */}
+        <video
+          src="/assets/videos/preloader-video.mp4"
+          autoPlay
+          muted
+          playsInline
+          preload="auto"
+          className="absolute left-409.5 top-80 h-619 w-1100 object-contain"
+        />
+
         <div className="absolute left-180.5 top-740 flex h-63 w-1558 items-center justify-between">
-          <span className="h-5 w-98 hw-panel-gradient" />
+          {/* The bar fills in step with the counter. */}
+          <span className="relative mr-60 h-5 flex-1">
+            <span
+              data-anim="bar"
+              className="absolute inset-0 origin-left hw-panel-gradient"
+            />
+          </span>
           {/* Each step gets a slot taller than the 80px glyphs so neighbouring
               rows never bleed into the window. */}
           <div className="relative h-100 w-246 shrink-0 overflow-hidden">

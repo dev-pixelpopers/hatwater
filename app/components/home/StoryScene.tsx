@@ -1,4 +1,4 @@
-import {useRef} from 'react';
+import {useEffect, useRef} from 'react';
 import {
   addClip,
   createScrubTimeline,
@@ -30,6 +30,22 @@ export const STORY_UNITS = 5 + END_HOLD;
 export function StoryScene() {
   const wrapperRef = useRef<HTMLElement>(null);
   const artboardRef = useRef<HTMLDivElement>(null);
+  const workshopVideoRef = useRef<HTMLVideoElement>(null);
+
+  // The workshop clip only plays while it is actually on screen.
+  useEffect(() => {
+    const video = workshopVideoRef.current;
+    if (!video) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) video.play().catch(() => {});
+        else video.pause();
+      },
+      {threshold: 0.15},
+    );
+    observer.observe(video);
+    return () => observer.disconnect();
+  }, []);
 
   useGsapContext(wrapperRef, () => {
     const wrapper = wrapperRef.current;
@@ -152,10 +168,14 @@ export function StoryScene() {
         data-anim="workshop"
         className="absolute left-1429 top-317 m-0 h-660 w-406 overflow-hidden"
       >
-        <img
-          src="/assets/workshop.jpg"
-          alt="Hat blocks and tools in the Hatwater House workshop"
-          loading="lazy"
+        <video
+          ref={workshopVideoRef}
+          src="/assets/videos/video_1.mp4"
+          aria-label="Hat blocks and tools in the Hatwater House workshop"
+          muted
+          loop
+          playsInline
+          preload="metadata"
           className="size-full object-cover"
         />
       </figure>
