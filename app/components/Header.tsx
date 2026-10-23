@@ -7,6 +7,7 @@ import {
 } from '@shopify/hydrogen';
 import type {HeaderQuery, CartApiQueryFragment} from 'storefrontapi.generated';
 import {useAside} from '~/components/Aside';
+import {MENU_OVERLAY_ID} from '~/components/MenuOverlay';
 
 interface HeaderProps {
   header: HeaderQuery;
@@ -116,11 +117,14 @@ function HeaderCtas({
 }
 
 function HeaderMenuMobileToggle() {
-  const {open} = useAside();
+  const {type, open} = useAside();
   return (
     <button
       className="header-menu-mobile-toggle reset"
       onClick={() => open('mobile')}
+      aria-label="Open menu"
+      aria-controls={MENU_OVERLAY_ID}
+      aria-expanded={type === 'mobile'}
     >
       <h3>☰</h3>
     </button>

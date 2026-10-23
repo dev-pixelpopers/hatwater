@@ -1,3 +1,5 @@
+import type {HomepageProductFragment} from 'storefrontapi.generated';
+
 /**
  * Hat cut-outs and carousel geometry for "The California Collection"
  * (Figma variants 8 -> 10 and 14). Every value is in Figma pixels.
@@ -101,7 +103,17 @@ export const HERO_HAT_ID = 'lj-a';
 export const FINAL_HAT_ID = 'lj-b';
 export const CAROUSEL_STEPS = 3;
 
-export const COLLECTION_ITEMS = [
+export type CollectionItem = {
+  name: string;
+  copy: string;
+  /** Row offset inside the name list, in Figma pixels. */
+  top: number;
+  /** Live Storefront API product shown at this carousel step, if any. */
+  product?: HomepageProductFragment;
+};
+
+/** Static copy, also the fallback when the store returns no products. */
+export const COLLECTION_ITEMS: CollectionItem[] = [
   {name: 'The LJ', top: 20},
   {name: 'Everyday RCA', top: 212},
   {name: 'California Gus', top: 415},
@@ -110,6 +122,36 @@ export const COLLECTION_ITEMS = [
   ...item,
   copy: "At fifteen, Mark bought his first cowboy hat one inspired by Little Joe Cartwright's on Bonanza.",
 }));
+
+/**
+ * One item per carousel step. Live products replace the names and copy; the
+ * hat cut-outs stay static because the carousel geometry is tuned to them.
+ * A product whose title matches a step's hat lands on that step, the rest
+ * fill the remaining steps in order (repeating if the store has fewer).
+ */
+export function collectionItems(
+  products: HomepageProductFragment[],
+): CollectionItem[] {
+  if (!products.length) return COLLECTION_ITEMS;
+  const byTitle = (name: string) =>
+    products.find(
+      (product) => product.title.trim().toLowerCase() === name.toLowerCase(),
+    );
+  const unmatched = products.filter(
+    (product) => !COLLECTION_ITEMS.some((item) => byTitle(item.name) === product),
+  );
+  const spare = unmatched.length ? unmatched : products;
+  let next = 0;
+  return COLLECTION_ITEMS.map((item) => {
+    const product = byTitle(item.name) ?? spare[next++ % spare.length];
+    return {
+      ...item,
+      name: product.title,
+      copy: product.description || item.copy,
+      product,
+    };
+  });
+}
 
 /** Vertical offset of the name list for each carousel step (Figma 8, 9, 10, 14). */
 export const NAME_OFFSETS = [0, -210, -410, -610];

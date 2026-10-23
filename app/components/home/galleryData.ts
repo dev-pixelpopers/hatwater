@@ -10,7 +10,7 @@ export type TileImage = {
   top: number;
   width: number;
   height: number;
-  /** Figma draws these layers rotated 180° + flipped vertically = mirrored. */
+  /** Figma draws these layers rotated 180Â° + flipped vertically = mirrored. */
   mirrored?: boolean;
   luminosity?: boolean;
   /** Optional fill crop inside the rounded box. */
@@ -226,33 +226,44 @@ export const FEATURE_TILE: GalleryTile = {
 
 export const SWAP_DISTANCE = 310;
 
-/**
- * Story stills (UGC video posters in Figma). `offset` is where each one ends
- * up relative to the centre card (Figma Variant29).
- */
-export const STORIES = [
+export type Story = {
+  id: string;
+  /** UGC clip, played on hover. */
+  video: string;
+  alt: string;
+  /** Instagram post the card opens on click. */
+  href: string;
+  /** Where the card ends up relative to the centre card (Figma Variant29). */
+  offset: {x: number; y: number};
+};
+
+export const STORIES: Story[] = [
   {
     id: 'c3',
-    src: '/assets/story-1.png',
+    video: '/assets/videos/testimonial_1.mp4',
     alt: 'Woman in a camel coat and brown felt hat',
+    href: 'https://www.instagram.com/',
     offset: {x: -840, y: -4},
   },
   {
     id: 'c4',
-    src: '/assets/story-2.png',
+    video: '/assets/videos/testimonial_2.mp4',
     alt: 'Man in a navy fedora lighting a cigar',
+    href: 'https://www.instagram.com/',
     offset: {x: -420, y: 77},
   },
   {
     id: 'c6',
-    src: '/assets/story-3.png',
+    video: '/assets/videos/testimonial_3.mp4',
     alt: 'Woman in a cream cowboy hat in the desert',
+    href: 'https://www.instagram.com/',
     offset: {x: 420, y: 77},
   },
   {
     id: 'c5',
-    src: '/assets/story-4.png',
+    video: '/assets/videos/testimonial_4.mp4',
     alt: 'Woman holding a tan Hatwater House hat',
+    href: 'https://www.instagram.com/',
     offset: {x: 0, y: 0},
   },
 ];
