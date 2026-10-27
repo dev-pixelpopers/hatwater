@@ -3,13 +3,13 @@ import {Link} from 'react-router';
 const QUICK_LINKS = [
   [
     {label: 'Home', to: '/'},
-    {label: 'About', to: '/pages/about'},
+    {label: 'About', to: '/about'},
     {label: 'Product', to: '/collections/all'},
   ],
   [
-    {label: 'Shop', to: '/collections'},
+    {label: 'Shop', to: '/shop'},
     {label: 'Reviews', to: '/pages/reviews'},
-    {label: 'Contact', to: '/pages/contact'},
+    {label: 'Contact', to: '/contact'},
   ],
 ];
 

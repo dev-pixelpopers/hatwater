@@ -16,6 +16,7 @@ import {
 } from '~/components/SearchFormPredictive';
 import {SearchResultsPredictive} from '~/components/SearchResultsPredictive';
 
+/** The footer / login / domain fields are loaded by root but unused by the brand chrome. */
 interface PageLayoutProps {
   cart: Promise<CartApiQueryFragment | null>;
   footer: Promise<FooterQuery | null>;
@@ -25,42 +26,28 @@ interface PageLayoutProps {
   children?: React.ReactNode;
 }
 
-export function PageLayout({
-  cart,
-  children = null,
-  footer,
-  header,
-  isLoggedIn,
-  publicStoreDomain,
-}: PageLayoutProps) {
-  // Routes that render their own header/footer opt out via `handle`.
-  const hideChrome = useMatches().some(
+export function PageLayout({cart, children = null, header}: PageLayoutProps) {
+  // Routes that render their own header/footer opt out via `handle`, and
+  // designed full-width pages drop the skeleton's main margin.
+  const handles = useMatches().map(
     (match) =>
-      (match.handle as {hideLayoutChrome?: boolean} | undefined)
-        ?.hideLayoutChrome,
+      match.handle as
+        | {hideLayoutChrome?: boolean; fullBleed?: boolean}
+        | undefined,
   );
+  const hideChrome = handles.some((handle) => handle?.hideLayoutChrome);
+  const fullBleed = handles.some((handle) => handle?.fullBleed);
 
   return (
     <Aside.Provider>
       <CartAside cart={cart} />
       <SearchAside />
       <MenuOverlay cart={cart} />
-      {header && !hideChrome && (
-        <Header
-          header={header}
-          cart={cart}
-          isLoggedIn={isLoggedIn}
-          publicStoreDomain={publicStoreDomain}
-        />
-      )}
-      <main className={hideChrome ? 'm-0' : undefined}>{children}</main>
-      {!hideChrome && (
-        <Footer
-          footer={footer}
-          header={header}
-          publicStoreDomain={publicStoreDomain}
-        />
-      )}
+      {header && !hideChrome && <Header cart={cart} />}
+      <main className={hideChrome || fullBleed ? 'm-0' : undefined}>
+        {children}
+      </main>
+      {!hideChrome && <Footer />}
     </Aside.Provider>
   );
 }

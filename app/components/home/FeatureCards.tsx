@@ -71,7 +71,7 @@ export function FeatureCards() {
       <FeatureCard
         id="custom"
         title="Built for the head."
-        cta={{label: 'Custom request', to: '/pages/contact'}}
+        cta={{label: 'Custom request', to: '/contact'}}
         image={{
           src: '/assets/card-craftsman.png',
           alt: 'Hatter shaping a hat brim by hand',

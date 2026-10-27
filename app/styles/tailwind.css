@@ -186,6 +186,31 @@
     border-radius: 0;
     max-width: none;
   }
+
+  /* Inner pages (shop / about / contact) size their own images too. */
+  .hw-page img {
+    border-radius: 0;
+  }
+}
+
+/* Cart count badge bump when a line is added. */
+@keyframes hw-pop {
+  0% {
+    scale: 0.4;
+  }
+  100% {
+    scale: 1;
+  }
+}
+
+/* Checkmark stroke draw (paths use pathLength="1"). */
+@keyframes hw-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
 }
 
 html.hw-scroll-lock,

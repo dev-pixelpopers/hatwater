@@ -2,16 +2,10 @@ import {Suspense, useEffect, useRef} from 'react';
 import {Await, Link, useLocation} from 'react-router';
 import type {CartApiQueryFragment} from 'storefrontapi.generated';
 import {useAside} from '~/components/Aside';
+import {APPOINTMENT_URL, NAV_LINKS} from '~/components/site/links';
 import {gsap, prefersReducedMotion, useGsapContext} from '~/lib/gsap';
 
 export const MENU_OVERLAY_ID = 'hw-menu';
-
-const NAV_LINKS = [
-  {label: 'Home', to: '/'},
-  {label: 'Shop', to: '/collections/all'},
-  {label: 'About', to: '/pages/about'},
-  {label: 'Contact', to: '/pages/contact'},
-];
 
 const FOCUSABLE = 'a[href], button:not([disabled])';
 
@@ -235,7 +229,7 @@ export function MenuOverlay({
               hand.
             </p>
             <Link
-              to="/pages/contact"
+              to={APPOINTMENT_URL}
               onClick={close}
               className="self-start border-b border-hw-sand/50 pb-1 uppercase tracking-[0.06em] text-hw-bone no-underline transition-colors duration-300 hover:border-hw-bone hover:no-underline"
             >

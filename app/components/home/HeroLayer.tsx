@@ -1,12 +1,12 @@
-import {forwardRef, useImperativeHandle, useRef} from 'react';
+import { forwardRef, useImperativeHandle, useRef } from 'react';
 import {
   gsap,
   prefersReducedMotion,
   unlockScroll,
   useGsapContext,
 } from '~/lib/gsap';
-import {HeroHeader} from './HeroHeader';
-import {PillButton} from './PillButton';
+import { HeroHeader } from './HeroHeader';
+import { PillButton } from './PillButton';
 
 export type HeroIntroHandle = {
   /** Plays the hero entrance (Figma "Variant2" -> "Variant3" -> "Variant4"). */
@@ -35,7 +35,7 @@ export const HeroLayer = forwardRef<HeroIntroHandle>(
     useGsapContext(rootRef, () => {
       const intro = gsap.timeline({
         paused: true,
-        defaults: {ease: 'power3.out'},
+        defaults: { ease: 'power3.out' },
         onComplete: unlockScroll,
       });
 
@@ -43,33 +43,33 @@ export const HeroLayer = forwardRef<HeroIntroHandle>(
         // Variant2 -> Variant3: monogram is wiped in top-down, header drops in.
         .fromTo(
           '[data-anim="monogram"]',
-          {clipPath: 'inset(0% 0% 100% 0%)'},
-          {clipPath: 'inset(0% 0% 0% 0%)', duration: 1.2, ease: 'power2.inOut'},
+          { clipPath: 'inset(0% 0% 100% 0%)' },
+          { clipPath: 'inset(0% 0% 0% 0%)', duration: 1.2, ease: 'power2.inOut' },
         )
         .fromTo(
           '[data-anim="hero-header"]',
-          {yPercent: -230},
-          {yPercent: 0, duration: 1},
+          { yPercent: -230 },
+          { yPercent: 0, duration: 1 },
           0.2,
         )
         // Variant3 -> Variant4: the model's frame grows upwards from y 1020,
         // the headline rises inside its mask and the CTA fades in.
         .fromTo(
           '[data-anim="woman"]',
-          {clipPath: 'inset(72.6% 0% 0% 0%)'},
-          {clipPath: 'inset(0% 0% 0% 0%)', duration: 1.3, ease: 'power2.inOut'},
+          { clipPath: 'inset(72.6% 0% 0% 0%)' },
+          { clipPath: 'inset(0% 0% 0% 0%)', duration: 1.3, ease: 'power2.inOut' },
           '-=0.2',
         )
         .fromTo(
           '[data-anim="headline"]',
-          {yPercent: 100},
-          {yPercent: 0, duration: 1},
+          { yPercent: 110 },
+          { yPercent: 0, duration: 1 },
           '-=0.8',
         )
         .fromTo(
           '[data-anim="hero-cta"]',
-          {autoAlpha: 0},
-          {autoAlpha: 1, duration: 0.6, ease: 'power1.out'},
+          { autoAlpha: 0 },
+          { autoAlpha: 1, duration: 0.6, ease: 'power1.out' },
           '-=0.5',
         );
 

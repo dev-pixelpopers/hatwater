@@ -10,7 +10,13 @@ import {
   ofSize,
   useGsapContext,
 } from '~/lib/gsap';
-import {AboutCard} from './AboutCard';
+import {
+  ABOUT_BOX_HEIGHT,
+  ABOUT_COPY_TOP,
+  ABOUT_LINE_HEIGHT,
+  ABOUT_LINES,
+  AboutCard,
+} from './AboutCard';
 import {CollectionLayer} from './CollectionLayer';
 import {
   CAROUSEL,
@@ -43,12 +49,18 @@ const CHAIR_CLIP = {hidden: inset(0, 94.91)};
 const ABOUT_CLIP = {hidden: inset(0, 0, 90.54)};
 const TITLE_CLIP = {hidden: inset(0, 0, 85.34)};
 /**
- * The frosted panel (top 49, 432 tall) sits in the 518px copy box. It clips
- * itself in step with the copy reveal (box 49 -> 518px, linear), so its own
- * reveal finishes after 432 / 469 of that tween.
+ * The frosted strips (one per line) sit in the 518px copy box. Each clips
+ * itself in step with the copy reveal (box 49 -> 518px, linear), so a strip
+ * starts when the reveal edge reaches its top and ends at its bottom.
  */
-const BLUR_CLIP = {hidden: inset(0, 0, 100), cleared: inset(100, 0, 0)};
-const BLUR_REVEAL_DURATION = 432 / (518 - 49);
+const BLUR_CLIP = {hidden: inset(0, 0, 100)};
+const BLUR_REVEAL_SPAN = ABOUT_BOX_HEIGHT - ABOUT_COPY_TOP;
+/**
+ * Thaw: each line fades over this share of its 1-unit phase; the starts are
+ * spread so the last line finishes exactly at the end of the phase.
+ */
+const LINE_THAW_DURATION = 2 / (ABOUT_LINES + 1);
+const LINE_THAW_STAGGER = (1 - LINE_THAW_DURATION) / (ABOUT_LINES - 1);
 
 const hatSelector = (id: string) => `[data-hat="${id}"]`;
 
@@ -137,7 +149,11 @@ export const ShowcaseScene = forwardRef<HeroIntroHandle, ShowcaseSceneProps>(
       gsap.set(hatClip, {clipPath: HAT_CLIP.chair});
       gsap.set(chairClip, {clipPath: CHAIR_CLIP.hidden});
       gsap.set(aboutCopy, {clipPath: ABOUT_CLIP.hidden});
-      gsap.set(aboutBlur, {clipPath: BLUR_CLIP.hidden, '--blur-strength': 1});
+      gsap.set(aboutBlur, {
+        clipPath: BLUR_CLIP.hidden,
+        '--blur-strength': 1,
+        autoAlpha: 1,
+      });
       gsap.set(rings, {scale: 0.157, transformOrigin: '50% 50%'});
       gsap.set(title, {clipPath: TITLE_CLIP.hidden});
       gsap.set(names, {yPercent: ofSize(200, NAMES_HEIGHT)});
@@ -161,18 +177,33 @@ export const ShowcaseScene = forwardRef<HeroIntroHandle, ShowcaseSceneProps>(
       addClip(tl, chairClip, CHAIR_CLIP.hidden, inset(), 0, {ease: 'none'});
       addClip(tl, hatClip, HAT_CLIP.chair, HAT_CLIP.card, 0, {ease: 'none'});
       addClip(tl, aboutCopy, ABOUT_CLIP.hidden, inset(), 0, {ease: 'none'});
-      addClip(tl, aboutBlur, BLUR_CLIP.hidden, inset(), 0, {
-        duration: BLUR_REVEAL_DURATION,
-        ease: 'none',
+      const blurLines = gsap.utils.toArray<HTMLElement>(
+        wrapper.querySelectorAll(aboutBlur),
+      );
+      blurLines.forEach((line, index) => {
+        addClip(
+          tl,
+          line,
+          BLUR_CLIP.hidden,
+          inset(),
+          (index * ABOUT_LINE_HEIGHT) / BLUR_REVEAL_SPAN,
+          {duration: ABOUT_LINE_HEIGHT / BLUR_REVEAL_SPAN, ease: 'none'},
+        );
       });
 
-      // Variant5 -> Variant6: the frosted panel wipes down and thaws,
-      // un-blurring the copy. Clipping its top edge reads like the original
-      // slide without a transform, and the blur itself scrubs to zero.
-      addClip(tl, aboutBlur, inset(), BLUR_CLIP.cleared, 1, {
-        '--blur-strength': 0,
-        ease: 'none',
-      });
+      // Variant5 -> Variant6: the frost thaws line by line, top to bottom,
+      // each strip scrubbing its blur to zero as it fades out.
+      tl.to(
+        blurLines,
+        {
+          '--blur-strength': 0,
+          autoAlpha: 0,
+          duration: LINE_THAW_DURATION,
+          stagger: LINE_THAW_STAGGER,
+          ease: 'none',
+        },
+        1,
+      );
 
       // Variant6 -> Variant7: card leaves, the hat flies into the centre.
       addClip(tl, hatClip, HAT_CLIP.card, inset(), 2, {

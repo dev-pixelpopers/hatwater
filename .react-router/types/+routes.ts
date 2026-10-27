@@ -105,7 +105,13 @@ type Pages = {
       "*": string;
     };
   };
+  "/contact": {
+    params: {};
+  };
   "/search": {
+    params: {};
+  };
+  "/about": {
     params: {};
   };
   "/cart": {
@@ -115,6 +121,9 @@ type Pages = {
     params: {
       "lines": string;
     };
+  };
+  "/shop": {
+    params: {};
   };
   "/*": {
     params: {
@@ -135,7 +144,7 @@ type Pages = {
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/blogs/:blogHandle/:articleHandle" | "/sitemap/:type/:page.xml" | "/blogs/:blogHandle" | "/collections/:handle" | "/account/authorize" | "/collections" | "/policies/:handle" | "/products/:handle" | "/account/logout" | "/collections/all" | "/policies" | "/account/login" | "/discount/:code" | "/pages/:handle" | "/sitemap.xml" | "/blogs" | "/robots.txt" | "/account" | "/account/orders" | "/account/orders/:id" | "/account/addresses" | "/account/profile" | "/account/*" | "/search" | "/cart" | "/cart/:lines" | "/*" | "/graphiql" | "/subrequest-profiler" | "/.well-known/appspecific/com.chrome.devtools.json";
+    page: "/" | "/blogs/:blogHandle/:articleHandle" | "/sitemap/:type/:page.xml" | "/blogs/:blogHandle" | "/collections/:handle" | "/account/authorize" | "/collections" | "/policies/:handle" | "/products/:handle" | "/account/logout" | "/collections/all" | "/policies" | "/account/login" | "/discount/:code" | "/pages/:handle" | "/sitemap.xml" | "/blogs" | "/robots.txt" | "/account" | "/account/orders" | "/account/orders/:id" | "/account/addresses" | "/account/profile" | "/account/*" | "/contact" | "/search" | "/about" | "/cart" | "/cart/:lines" | "/shop" | "/*" | "/graphiql" | "/subrequest-profiler" | "/.well-known/appspecific/com.chrome.devtools.json";
   };
   "routes/blogs.$blogHandle.$articleHandle.tsx": {
     id: "routes/blogs.$blogHandle.$articleHandle";
@@ -233,6 +242,10 @@ type RouteFiles = {
     id: "routes/account.$";
     page: "/account/*";
   };
+  "routes/contact.tsx": {
+    id: "routes/contact";
+    page: "/contact";
+  };
   "routes/search.tsx": {
     id: "routes/search";
     page: "/search";
@@ -241,6 +254,10 @@ type RouteFiles = {
     id: "routes/_index";
     page: "/";
   };
+  "routes/about.tsx": {
+    id: "routes/about";
+    page: "/about";
+  };
   "routes/cart.tsx": {
     id: "routes/cart";
     page: "/cart" | "/cart/:lines";
@@ -248,6 +265,10 @@ type RouteFiles = {
   "routes/cart.$lines.tsx": {
     id: "routes/cart.$lines";
     page: "/cart/:lines";
+  };
+  "routes/shop.tsx": {
+    id: "routes/shop";
+    page: "/shop";
   };
   "routes/$.tsx": {
     id: "routes/$";
@@ -301,10 +322,13 @@ type RouteModules = {
   "routes/account.profile": typeof import("./app/routes/account.profile.tsx");
   "routes/account._index": typeof import("./app/routes/account._index.tsx");
   "routes/account.$": typeof import("./app/routes/account.$.tsx");
+  "routes/contact": typeof import("./app/routes/contact.tsx");
   "routes/search": typeof import("./app/routes/search.tsx");
   "routes/_index": typeof import("./app/routes/_index.tsx");
+  "routes/about": typeof import("./app/routes/about.tsx");
   "routes/cart": typeof import("./app/routes/cart.tsx");
   "routes/cart.$lines": typeof import("./app/routes/cart.$lines.tsx");
+  "routes/shop": typeof import("./app/routes/shop.tsx");
   "routes/$": typeof import("./app/routes/$.tsx");
   "/Github/hatwater/node_modules/@shopify/hydrogen/dist/vite/virtual-routes/layout": unknown;
   "vite/virtual-routes/routes/graphiql": unknown;

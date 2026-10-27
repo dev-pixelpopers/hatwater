@@ -1,17 +1,17 @@
-import {useEffect} from 'react';
-import {type FetcherWithComponents} from 'react-router';
-import {CartForm, Money} from '@shopify/hydrogen';
-import type {HomepageProductFragment} from 'storefrontapi.generated';
-import {useAside} from '~/components/Aside';
-import {PillButton, PillFill} from './PillButton';
+import { useEffect } from 'react';
+import { type FetcherWithComponents } from 'react-router';
+import { CartForm, Money } from '@shopify/hydrogen';
+import type { HomepageProductFragment } from 'storefrontapi.generated';
+import { useAside } from '~/components/Aside';
+import { PillButton, PillFill } from './PillButton';
 
-type CartActionData = {cart?: {checkoutUrl?: string} | null};
+type CartActionData = { cart?: { checkoutUrl?: string } | null };
 
 /**
  * Price + cart actions for the hat currently in the collection ring. Falls
  * back to a link to the catalogue when there is no live product.
  */
-export function ProductCta({product}: {product?: HomepageProductFragment}) {
+export function ProductCta({ product }: { product?: HomepageProductFragment }) {
   const variant = product?.selectedOrFirstAvailableVariant;
   if (!product || !variant) {
     return (
@@ -24,12 +24,12 @@ export function ProductCta({product}: {product?: HomepageProductFragment}) {
     );
   }
 
-  const lines = [{merchandiseId: variant.id, quantity: 1}];
+  const lines = [{ merchandiseId: variant.id, quantity: 1 }];
   const soldOut = !variant.availableForSale;
 
   return (
     <div className="flex flex-col gap-18">
-      <p className="m-0 flex items-baseline gap-12 font-grotesk fs-22 lh-30 text-hw-taupe">
+      <p className="m-0 flex flex-col items-baseline gap-12 font-grotesk fs-22 lh-30 text-hw-taupe">
         <Money
           as="span"
           data={variant.price ?? product.priceRange.minVariantPrice}
@@ -47,12 +47,12 @@ export function ProductCta({product}: {product?: HomepageProductFragment}) {
   );
 }
 
-type Lines = Array<{merchandiseId: string; quantity: number}>;
+type Lines = Array<{ merchandiseId: string; quantity: number }>;
 
-function AddToCart({lines, disabled}: {lines: Lines; disabled: boolean}) {
-  const {open} = useAside();
+function AddToCart({ lines, disabled }: { lines: Lines; disabled: boolean }) {
+  const { open } = useAside();
   return (
-    <CartForm route="/cart" inputs={{lines}} action={CartForm.ACTIONS.LinesAdd}>
+    <CartForm route="/cart" inputs={{ lines }} action={CartForm.ACTIONS.LinesAdd}>
       {(fetcher: FetcherWithComponents<CartActionData>) => (
         <button
           type="submit"
@@ -89,9 +89,9 @@ function AddToCart({lines, disabled}: {lines: Lines; disabled: boolean}) {
 }
 
 /** Adds the line, then sends the shopper straight to checkout. */
-function BuyNow({lines}: {lines: Lines}) {
+function BuyNow({ lines }: { lines: Lines }) {
   return (
-    <CartForm route="/cart" inputs={{lines}} action={CartForm.ACTIONS.LinesAdd}>
+    <CartForm route="/cart" inputs={{ lines }} action={CartForm.ACTIONS.LinesAdd}>
       {(fetcher: FetcherWithComponents<CartActionData>) => (
         <BuyNowButton fetcher={fetcher} />
       )}

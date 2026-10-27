@@ -1,5 +1,11 @@
 import {PillButton} from './PillButton';
 
+/** Copy geometry in Figma pixels: the box, the paragraph's top and its lines. */
+export const ABOUT_BOX_HEIGHT = 518;
+export const ABOUT_COPY_TOP = 49;
+export const ABOUT_LINE_HEIGHT = 60;
+export const ABOUT_LINES = 7;
+
 /**
  * "Made just for you" card that slides over the hero (Figma "Group 22").
  * Positioned in hero-frame coordinates on the showcase track.
@@ -50,14 +56,22 @@ export function AboutCard() {
               because good things take time—and a great hat is one of them
             </p>
           </div>
-          {/* Frosted panel over the copy (Figma "Rectangle 145"). A sibling of
-              the clipped copy, not a child: an ancestor clip-path is a
-              backdrop root and leaves backdrop-filter nothing to blur. It is
-              clipped and un-blurred on itself instead (see ShowcaseScene). */}
-          <div
-            data-anim="about-blur"
-            className="pointer-events-none absolute left-0 top-49 h-432 w-1124 bg-white/30 hw-frost"
-          />
+          {/* Frosted panel over the copy (Figma "Rectangle 145"), split into
+              one strip per line so the copy thaws line by line. Siblings of
+              the clipped copy, not children: an ancestor clip-path is a
+              backdrop root and leaves backdrop-filter nothing to blur. Each
+              strip is clipped and un-blurred on itself (see ShowcaseScene). */}
+          {Array.from({length: ABOUT_LINES}, (_, line) => (
+            <div
+              key={line}
+              data-anim="about-blur"
+              className="pointer-events-none absolute left-0 w-1124 bg-white/30 hw-frost"
+              style={{
+                top: `calc(var(--spacing) * ${ABOUT_COPY_TOP + line * ABOUT_LINE_HEIGHT})`,
+                height: `calc(var(--spacing) * ${ABOUT_LINE_HEIGHT})`,
+              }}
+            />
+          ))}
         </div>
         <PillButton
           to="/pages/about"

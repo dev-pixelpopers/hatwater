@@ -1,4 +1,4 @@
-import {useRef} from 'react';
+import { useRef } from 'react';
 import {
   addClip,
   artX,
@@ -19,8 +19,8 @@ import {
   type Story,
   type TileImage,
 } from './galleryData';
-import {du, ScrollScene} from './ScrollScene';
-import {SiteFooter} from './SiteFooter';
+import { du, ScrollScene } from './ScrollScene';
+import { SiteFooter } from './SiteFooter';
 
 const END_HOLD = 0.3;
 /** The wordmark frames start 208px wide, showing only each capital H. */
@@ -32,12 +32,11 @@ const TILE_TILT = 45;
 /** Upright photo scale that still fills a tile tilted by TILE_TILT. */
 const TILE_TILT_FILL = 1.6;
 
-function TilePicture({image, alt}: {image: TileImage; alt: string}) {
+function TilePicture({ image, alt }: { image: TileImage; alt: string }) {
   return (
     <div
-      className={`absolute overflow-hidden r-20.25 ${image.mirrored ? '-scale-x-100' : ''} ${
-        image.luminosity ? 'mix-blend-luminosity' : ''
-      }`}
+      className={`absolute overflow-hidden r-20.25 ${image.mirrored ? '-scale-x-100' : ''} ${image.luminosity ? 'mix-blend-luminosity' : ''
+        }`}
       style={{
         left: du(image.left),
         top: du(image.top),
@@ -57,12 +56,12 @@ function TilePicture({image, alt}: {image: TileImage; alt: string}) {
 }
 
 /** UGC story: the clip plays on hover and the card links to its Instagram post. */
-function StoryCard({story}: {story: Story}) {
+function StoryCard({ story }: { story: Story }) {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const play = () => {
     // play() rejects if a pause() lands before it resolves; that's fine here.
-    videoRef.current?.play().catch(() => {});
+    videoRef.current?.play().catch(() => { });
   };
   const stop = () => {
     const video = videoRef.current;
@@ -120,7 +119,7 @@ function InstagramIcon() {
   );
 }
 
-function Tile({tile, feature = false}: {tile: GalleryTile; feature?: boolean}) {
+function Tile({ tile, feature = false }: { tile: GalleryTile; feature?: boolean }) {
   return (
     <div
       data-tile={feature ? 'feature' : 'gallery'}
@@ -181,63 +180,63 @@ export function GalleryScene() {
       yPercent: ofSize(122, 298),
     });
     gsap.set(tiles, {
-      scale: 0.2795,
+      scale: 0,
       yPercent: ofSize(45, 994),
       autoAlpha: 0,
       transformOrigin: `${(954.75 / 1919) * 100}% ${(501 / 994) * 100}%`,
     });
-    gsap.set('[data-anim="tilt"]', {rotation: TILE_TILT});
+    gsap.set('[data-anim="tilt"]', { rotation: TILE_TILT });
     gsap.set('[data-anim="untilt"]', {
       rotation: -TILE_TILT,
       scale: TILE_TILT_FILL,
     });
     // Tiles overflow while tilted; the feature tile clips again once the
     // stories rise inside it, so they stay hidden until then.
-    gsap.set(feature, {overflow: 'visible'});
+    gsap.set(feature, { overflow: 'visible' });
     gsap.utils.toArray<HTMLElement>('[data-anim="swap"]').forEach((swap) => {
       const tileHeight = swap.parentElement?.offsetHeight || 1;
       const artboardHeight = artboardRef.current?.offsetHeight || 1;
       // Distance in the tile's own units so it stays correct when resized.
       const distance = (SWAP_DISTANCE / 994) * artboardHeight;
-      gsap.set(swap, {yPercent: (distance / tileHeight) * 100});
+      gsap.set(swap, { yPercent: (distance / tileHeight) * 100 });
     });
-    gsap.set('[data-anim="stories"]', {yPercent: 104, autoAlpha: 0});
-    gsap.set(heading, {autoAlpha: 0, yPercent: 20});
-    gsap.set('[data-anim="footer"]', {yPercent: 102});
+    gsap.set('[data-anim="stories"]', { yPercent: 104, autoAlpha: 0 });
+    gsap.set(heading, { autoAlpha: 0, yPercent: 20 });
+    gsap.set('[data-anim="footer"]', { yPercent: 102 });
 
     const tl = createScrubTimeline(wrapper);
 
     // 22 -> 23: "Hatwater House" opens up from its initials.
-    addClip(tl, wordHat, WORD_HAT_INITIAL, inset(), 0, {yPercent: 0});
-    addClip(tl, wordHouse, WORD_HOUSE_INITIAL, inset(), 0, {yPercent: 0});
+    addClip(tl, wordHat, WORD_HAT_INITIAL, inset(), 0, { yPercent: 0 });
+    addClip(tl, wordHouse, WORD_HOUSE_INITIAL, inset(), 0, { yPercent: 0 });
 
     // 23 -> 24: the gallery wall scales in from the centre as faded diamonds,
     // then the tiles straighten up to full size.
-    tl.to(
-      tiles,
-      {scale: 0.69, yPercent: ofSize(20, 994), autoAlpha: 0.65, duration: 0.6},
-      1,
-    )
-      .to(tiles, {scale: 1, yPercent: 0, autoAlpha: 1, duration: 0.4}, 1.6)
-      .to('[data-anim="tilt"]', {rotation: 0, duration: 0.4}, 1.6)
-      .to('[data-anim="untilt"]', {rotation: 0, scale: 1, duration: 0.4}, 1.6);
+    // tl.to(
+    //   tiles,
+    //   { scale: 0.69, yPercent: ofSize(20, 994), autoAlpha: 0.65, duration: 0.6 },
+    //   1,
+    // )
+    tl.to(tiles, { scale: 1, yPercent: 0, autoAlpha: 1, duration: 1 }, 1)
+      .to('[data-anim="tilt"]', { rotation: 0, duration: 1 }, 1)
+      .to('[data-anim="untilt"]', { rotation: 0, scale: 1, duration: 1 }, 1);
 
     // 24 -> 25: every tile swaps to its next photo.
-    tl.to('[data-anim="swap"]', {yPercent: 0, stagger: 0.03}, 2);
+    tl.to('[data-anim="swap"]', { yPercent: 0, stagger: 0.03 }, 1.6);
 
     // 25 -> 26: heading and intro copy.
-    tl.to(heading, {autoAlpha: 1, yPercent: 0}, 3);
+    tl.to(heading, { autoAlpha: 1, yPercent: 0 }, 2.6);
 
     // 26 -> 27: everything clears except the centre tile, which cuts to the stories.
     tl.to(
       [wordHat, wordHouse, heading, '[data-tile="gallery"]'],
-      {autoAlpha: 0},
-      4,
+      { autoAlpha: 0 },
+      3.6,
     )
-      .set(feature, {overflow: 'hidden'}, 4)
-      .set('[data-anim="stories"]', {autoAlpha: 1}, 4)
-      .to(`${feature} [data-anim="swap"]`, {yPercent: -104}, 4)
-      .to('[data-anim="stories"]', {yPercent: 0}, 4);
+      .set(feature, { overflow: 'hidden' }, 3.6)
+      .set('[data-anim="stories"]', { autoAlpha: 1 }, 3.6)
+      .to(`${feature} [data-anim="swap"]`, { yPercent: -104 }, 3.6)
+      .to('[data-anim="stories"]', { yPercent: 0 }, 3.6);
 
     // 27 -> 28: centre story grows to full size.
     tl.to(
@@ -252,9 +251,9 @@ export function GalleryScene() {
     );
 
     // 28 -> 29: the stacked stories fan out into a row.
-    tl.set(feature, {overflow: 'visible'}, 6).to(
+    tl.set(feature, { overflow: 'visible' }, 6).to(
       feature,
-      {left: artX(STORY_CARD.settled.left), top: artY(STORY_CARD.settled.top)},
+      { left: artX(STORY_CARD.settled.left), top: artY(STORY_CARD.settled.top) },
       6,
     );
     STORIES.forEach((story) => {
@@ -269,12 +268,12 @@ export function GalleryScene() {
     });
 
     // 29 -> 30: stories lift and the footer rises underneath them.
-    tl.to(tiles, {yPercent: ofSize(-550, 994)}, 7).to(
+    tl.to(tiles, { yPercent: ofSize(-550, 994) }, 7).to(
       '[data-anim="footer"]',
-      {yPercent: 0},
+      { yPercent: 0 },
       7,
     );
-    tl.to({}, {duration: END_HOLD});
+    tl.to({}, { duration: END_HOLD });
   });
 
   return (
