@@ -17,8 +17,8 @@ export function ProductCta({ product }: { product?: HomepageProductFragment }) {
     return (
       <PillButton
         to="/collections/all"
-        label="Shop the collection"
-        width={280}
+        label="Explore the Collection"
+        width={290}
         gap={22}
       />
     );

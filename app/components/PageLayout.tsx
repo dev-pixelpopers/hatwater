@@ -43,19 +43,40 @@ export function PageLayout({cart, children = null, header}: PageLayoutProps) {
       <CartAside cart={cart} />
       <SearchAside />
       <MenuOverlay cart={cart} />
-      {header && !hideChrome && <Header cart={cart} />}
+      {/* Routes that hide the chrome still get it in the compact layout. */}
+      {header && (
+        <Header cart={cart} className={hideChrome ? 'hidden compact:block' : ''} />
+      )}
       <main className={hideChrome || fullBleed ? 'm-0' : undefined}>
         {children}
       </main>
-      {!hideChrome && <Footer />}
+      <Footer className={hideChrome ? 'hidden compact:block' : ''} />
     </Aside.Provider>
   );
 }
 
 function CartAside({cart}: {cart: PageLayoutProps['cart']}) {
   return (
-    <Aside type="cart" heading="CART">
-      <Suspense fallback={<p>Loading cart ...</p>}>
+    <Aside
+      type="cart"
+      heading={
+        <>
+          Your Cart
+          <Suspense fallback={null}>
+            <Await resolve={cart} errorElement={null}>
+              {(cart) =>
+                cart?.totalQuantity ? (
+                  <span className="aside-count">({cart.totalQuantity})</span>
+                ) : null
+              }
+            </Await>
+          </Suspense>
+        </>
+      }
+    >
+      <Suspense
+        fallback={<p className="cart-loading">Loading your cart…</p>}
+      >
         <Await resolve={cart}>
           {(cart) => {
             return <CartMain cart={cart} layout="aside" />;

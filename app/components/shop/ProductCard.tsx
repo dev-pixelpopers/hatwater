@@ -1,8 +1,7 @@
-import {useEffect, useRef, useState} from 'react';
-import {Link, type FetcherWithComponents} from 'react-router';
-import {CartForm, Image, Money} from '@shopify/hydrogen';
+import {Link} from 'react-router';
+import {Image, Money} from '@shopify/hydrogen';
 import {APPOINTMENT_URL} from '~/components/site/links';
-import type {ShopProduct} from './shopData';
+import {productDescriptor, type ShopProduct} from './shopData';
 
 type CardImage = NonNullable<ShopProduct['featuredImage']>;
 
@@ -58,6 +57,9 @@ export function ProductCard({
     product.options.find((option) => /colou?r/i.test(option.name))
       ?.optionValues ?? [];
   const url = `/products/${product.handle}`;
+  const {minVariantPrice, maxVariantPrice} = product.priceRange;
+  const hasPriceRange = minVariantPrice.amount !== maxVariantPrice.amount;
+  const descriptor = productDescriptor(product);
   const loading = index < 4 ? 'eager' : 'lazy';
 
   return (
@@ -88,7 +90,7 @@ export function ProductCard({
           />
         )}
         <span className="absolute left-[clamp(10px,0.9vw,16px)] top-[clamp(10px,0.9vw,16px)] bg-hw-cream/90 px-2.5 py-1 font-grotesk text-[clamp(10px,0.62vw,12px)] font-medium uppercase tracking-[0.16em] text-hw-espresso">
-          Made to order
+          Made to Order
         </span>
         <span
           aria-hidden
@@ -102,17 +104,30 @@ export function ProductCard({
 
       <div className="flex flex-1 flex-col gap-[clamp(10px,0.8vw,14px)] pt-[clamp(14px,1.1vw,20px)]">
         <div className="flex items-start justify-between gap-4">
-          <h3 className="m-0 font-display text-[clamp(20px,1.55vw,30px)] font-normal capitalize leading-[1.1] text-hw-espresso">
-            <Link
-              to={url}
-              prefetch="intent"
-              className="bg-[linear-gradient(currentColor,currentColor)] bg-[length:0%_1px] bg-left-bottom bg-no-repeat text-hw-espresso no-underline transition-[background-size] duration-500 hover:bg-[length:100%_1px] hover:no-underline"
-            >
-              {product.title}
-            </Link>
-          </h3>
+          <div className="flex min-w-0 flex-col gap-1">
+            <h3 className="m-0 font-display text-[clamp(20px,1.55vw,30px)] font-normal leading-[1.1] text-hw-espresso">
+              <Link
+                to={url}
+                prefetch="intent"
+                className="bg-[linear-gradient(currentColor,currentColor)] bg-[length:0%_1px] bg-left-bottom bg-no-repeat text-hw-espresso no-underline transition-[background-size] duration-500 hover:bg-[length:100%_1px] hover:no-underline"
+              >
+                {product.title}
+              </Link>
+            </h3>
+            {descriptor && (
+              <p className="m-0 font-grotesk text-[clamp(13px,0.85vw,15px)] text-hw-taupe">
+                {descriptor}
+              </p>
+            )}
+          </div>
+          {/* Live Shopify price; "From" when options (e.g. felt) change it. */}
           <p className="m-0 shrink-0 pt-[0.2em] font-grotesk text-[clamp(14px,0.95vw,17px)] text-hw-taupe">
-            <Money data={product.priceRange.minVariantPrice} withoutTrailingZeros />
+            {hasPriceRange && 'From '}
+            <Money
+              as="span"
+              data={product.priceRange.minVariantPrice}
+              withoutTrailingZeros
+            />
           </p>
         </div>
 
@@ -127,15 +142,22 @@ export function ProductCard({
         )}
 
         <div className="mt-auto pt-1">
-          {product.isFallback || !product.selectedOrFirstAvailableVariant ? (
+          {product.isFallback ? (
             <Link
               to={APPOINTMENT_URL}
               className={`${BUTTON} border-hw-espresso/30 bg-transparent text-hw-espresso hover:border-hw-espresso hover:bg-hw-espresso hover:text-hw-bone`}
             >
-              Enquire to order
+              Commission a Hat
             </Link>
           ) : (
-            <AddToCart product={product} />
+            <Link
+              to={url}
+              prefetch="intent"
+              aria-label={`Discover the Hat: ${product.title}`}
+              className={`${BUTTON} border-hw-espresso bg-hw-espresso text-hw-bone hover:bg-transparent hover:text-hw-espresso`}
+            >
+              Discover the Hat
+            </Link>
           )}
         </div>
       </div>
@@ -144,110 +166,4 @@ export function ProductCard({
 }
 
 const BUTTON =
-  'relative flex h-[clamp(44px,2.8vw,52px)] w-full cursor-pointer items-center justify-center gap-2 overflow-hidden border font-grotesk text-[clamp(11px,0.7vw,13px)] font-medium uppercase tracking-[0.18em] no-underline transition-[background-color,color,border-color] duration-500 hover:no-underline disabled:cursor-not-allowed';
-
-type CartFetcherData = {errors?: unknown[] | null} | undefined;
-
-/**
- * Adds the first available variant. The button flips to "Added" the moment
- * it is pressed (the header count is optimistic too) and only falls back to
- * an error if the cart action reports one.
- */
-function AddToCart({product}: {product: ShopProduct}) {
-  const variant = product.selectedOrFirstAvailableVariant!;
-  const available = variant.availableForSale;
-
-  return (
-    <CartForm
-      route="/cart"
-      action={CartForm.ACTIONS.LinesAdd}
-      inputs={{
-        lines: [{merchandiseId: variant.id, quantity: 1, selectedVariant: variant}],
-      }}
-    >
-      {(fetcher: FetcherWithComponents<CartFetcherData>) => (
-        <AddToCartButton
-          fetcher={fetcher}
-          available={available}
-          variantTitle={variant.title}
-        />
-      )}
-    </CartForm>
-  );
-}
-
-function AddToCartButton({
-  fetcher,
-  available,
-  variantTitle,
-}: {
-  fetcher: FetcherWithComponents<CartFetcherData>;
-  available: boolean;
-  variantTitle: string;
-}) {
-  const [status, setStatus] = useState<'idle' | 'added' | 'error'>('idle');
-  const busy = fetcher.state !== 'idle';
-  const wasBusy = useRef(false);
-
-  useEffect(() => {
-    if (busy) {
-      wasBusy.current = true;
-      setStatus('added');
-      return;
-    }
-    if (!wasBusy.current) return;
-    wasBusy.current = false;
-    const failed = Boolean(fetcher.data?.errors?.length);
-    setStatus(failed ? 'error' : 'added');
-    const timer = setTimeout(() => setStatus('idle'), failed ? 3200 : 2200);
-    return () => clearTimeout(timer);
-  }, [busy, fetcher.data]);
-
-  const label = !available
-    ? 'Sold out'
-    : status === 'added'
-      ? 'Added to bag'
-      : status === 'error'
-        ? 'Couldn’t add – retry'
-        : 'Add to cart';
-
-  return (
-    <>
-      <button
-        type="submit"
-        disabled={!available || busy}
-        title={`Adds ${variantTitle}`}
-        className={`${BUTTON} ${
-          status === 'added'
-            ? 'border-hw-copper bg-hw-copper text-white'
-            : status === 'error'
-              ? 'border-hw-rust bg-transparent text-hw-rust'
-              : 'border-hw-espresso bg-hw-espresso text-hw-bone hover:bg-transparent hover:text-hw-espresso disabled:border-hw-sand disabled:bg-hw-sand disabled:text-white'
-        }`}
-      >
-        {status === 'added' && (
-          <svg viewBox="0 0 16 16" aria-hidden className="size-[1.3em]" fill="none">
-            <path
-              d="M3 8.5l3.2 3L13 4.5"
-              stroke="currentColor"
-              strokeWidth="1.6"
-              pathLength={1}
-              className="animate-[hw-draw_0.5s_ease-out_both] [stroke-dasharray:1]"
-            />
-          </svg>
-        )}
-        <span>{label}</span>
-        {/* Progress hairline while the cart request is in flight. */}
-        <span
-          aria-hidden
-          className={`absolute inset-x-0 bottom-0 h-[2px] origin-left bg-white/70 transition-transform ${
-            busy ? 'scale-x-100 duration-[1200ms]' : 'scale-x-0 duration-200'
-          }`}
-        />
-      </button>
-      <span className="sr-only" role="status" aria-live="polite">
-        {status === 'added' ? 'Added to cart' : status === 'error' ? 'Could not add to cart' : ''}
-      </span>
-    </>
-  );
-}
+  'relative flex h-[clamp(44px,2.8vw,52px)] w-full cursor-pointer items-center justify-center gap-2 overflow-hidden border font-grotesk text-[clamp(11px,0.7vw,13px)] font-medium uppercase tracking-[0.18em] no-underline transition-[background-color,color,border-color] duration-500 hover:no-underline';

@@ -38,6 +38,7 @@ export function HeroHeader() {
     >
       <button
         type="button"
+        data-menu-toggle
         onClick={() => (menuOpen ? close() : open('mobile'))}
         aria-controls={MENU_OVERLAY_ID}
         aria-expanded={menuOpen}

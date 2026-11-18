@@ -120,7 +120,7 @@ export const COLLECTION_ITEMS: CollectionItem[] = [
   {name: 'The LJ', top: 630},
 ].map((item) => ({
   ...item,
-  copy: "At fifteen, Mark bought his first cowboy hat one inspired by Little Joe Cartwright's on Bonanza.",
+  copy: 'A distinctive silhouette, individually shaped and finished to order.',
 }));
 
 /**

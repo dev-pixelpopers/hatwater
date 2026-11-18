@@ -33,6 +33,25 @@ export function sortProducts(products: ShopProduct[], sort: SortValue) {
   }
 }
 
+/**
+ * Card subtitle built only from real product data, e.g. "Western Fur Felt
+ * Hat": the Shopify product type plus "Fur Felt" when the Material option or
+ * description names beaver, rabbit or fur felt. Null when there is nothing
+ * product-specific to say.
+ */
+export function productDescriptor(product: ShopProduct): string | null {
+  const materials = product.options
+    .filter((option) => /material|felt/i.test(option.name))
+    .flatMap((option) => option.optionValues.map((value) => value.name))
+    .join(' ');
+  const furFelt = /beaver|rabbit|fur felt/i.test(
+    `${materials} ${product.description}`,
+  );
+  const type = product.productType.trim();
+  if (!type && !furFelt) return null;
+  return [type, furFelt ? 'Fur Felt' : '', 'Hat'].filter(Boolean).join(' ');
+}
+
 export type Category = {
   id: string;
   label: string;
@@ -139,7 +158,7 @@ function fallback(
         image(`${handle}-2`, lifestyle, `${title} being worn`),
       ],
     },
-    priceRange: {minVariantPrice: price},
+    priceRange: {minVariantPrice: price, maxVariantPrice: price},
     collections: {nodes: []},
     options: [
       {name: 'Color', optionValues: colours.map((name) => ({name}))},

@@ -1,4 +1,4 @@
-import {Suspense, useEffect, useRef} from 'react';
+import {Suspense, useEffect, useLayoutEffect, useRef, useState} from 'react';
 import {Await, Link, useLocation} from 'react-router';
 import type {CartApiQueryFragment} from 'storefrontapi.generated';
 import {useAside} from '~/components/Aside';
@@ -8,6 +8,38 @@ import {gsap, prefersReducedMotion, useGsapContext} from '~/lib/gsap';
 export const MENU_OVERLAY_ID = 'hw-menu';
 
 const FOCUSABLE = 'a[href], button:not([disabled])';
+
+type Box = {left: number; top: number; width: number; height: number};
+type MenuAnchor = {toggle: Box; fontSize: string; logo: Box | null};
+
+const box = (element: Element): Box => {
+  const {left, top, width, height} = element.getBoundingClientRect();
+  return {left, top, width, height};
+};
+
+/**
+ * The on-screen header Menu button (`[data-menu-toggle]`): the homepage
+ * header or the site header, whichever is visible.
+ */
+function findAnchor(): MenuAnchor | null {
+  const toggle = Array.from(
+    document.querySelectorAll<HTMLElement>('[data-menu-toggle]'),
+  ).find((element) => {
+    const rect = element.getBoundingClientRect();
+    return (
+      rect.width > 0 && rect.bottom > 0 && rect.top < window.innerHeight
+    );
+  });
+  if (!toggle) return null;
+  const logo = toggle
+    .closest('header')
+    ?.querySelector('a[aria-label="Hatwater House home"]');
+  return {
+    toggle: box(toggle),
+    fontSize: getComputedStyle(toggle).fontSize,
+    logo: logo ? box(logo) : null,
+  };
+}
 
 /**
  * Full-screen navigation overlay, opened by the header "Menu" buttons through
@@ -25,19 +57,39 @@ export function MenuOverlay({
   const timelineRef = useRef<gsap.core.Timeline | null>(null);
   const expandedRef = useRef(expanded);
   expandedRef.current = expanded;
+  const [anchor, setAnchor] = useState<MenuAnchor | null>(null);
+
+  // Measure the visible Menu button (and its header's logo) as the menu
+  // opens, and again on resize while it is open.
+  useLayoutEffect(() => {
+    if (!expanded) return;
+    const measure = () => setAnchor(findAnchor());
+    measure();
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
+  }, [expanded]);
 
   useGsapContext(rootRef, () => {
     const root = rootRef.current;
     if (!root) return;
 
     gsap.set(root, {autoAlpha: 0});
-    const tl = gsap.timeline({paused: true})
+    const tl = gsap
+      .timeline({paused: true})
       .set(root, {autoAlpha: 1})
       // Copper panel wipes down from the header.
       .fromTo(
         '[data-menu="panel"]',
         {clipPath: 'inset(0% 0% 100% 0%)'},
         {clipPath: 'inset(0% 0% 0% 0%)', duration: 0.9, ease: 'expo.inOut'},
+      )
+      // The header-row bar fades in place (no movement), so Close is
+      // immediately where Menu was.
+      .fromTo(
+        '[data-menu="bar"]',
+        {autoAlpha: 0},
+        {autoAlpha: 1, duration: 0.3, ease: 'power1.out'},
+        0,
       )
       // Each link rises out of its own mask.
       .fromTo(
@@ -139,10 +191,13 @@ export function MenuOverlay({
         style={{clipPath: 'inset(0% 0% 100% 0%)'}}
       />
 
-      <div className="relative flex h-full flex-col px-[clamp(20px,7vw,135px)] py-[clamp(20px,3vw,48px)] text-hw-bone">
+      <div className="relative flex h-full flex-col text-hw-bone">
+        {/* Close and the logo are placed on the exact spot of the Menu button
+            and logo of whichever header opened the menu (see `anchor`), so
+            the cursor is already on Close. Fades without moving. */}
         <div
-          data-menu="fade"
-          className="grid grid-cols-[1fr_auto_1fr] items-center"
+          data-menu="bar"
+          className="relative h-[var(--header-h)] shrink-0"
         >
           <button
             type="button"
@@ -150,23 +205,44 @@ export function MenuOverlay({
             onClick={close}
             aria-controls={MENU_OVERLAY_ID}
             aria-expanded={expanded}
-            className="group flex cursor-pointer items-center gap-3 justify-self-start border-0 bg-transparent p-0 font-grotesk text-[clamp(14px,1.05vw,20px)] font-medium uppercase tracking-[0.04em] text-hw-bone"
+            className="group absolute left-[clamp(20px,7.03vw,135px)] top-[calc(var(--header-h)/2-0.6em)] flex cursor-pointer items-center gap-[0.6em] border-0 bg-transparent p-0 font-grotesk text-[clamp(14px,1.04vw,20px)] font-medium uppercase leading-[1.2] text-hw-bone"
+            style={
+              anchor
+                ? {
+                    left: anchor.toggle.left,
+                    top: anchor.toggle.top,
+                    fontSize: anchor.fontSize,
+                    lineHeight: `${anchor.toggle.height}px`,
+                  }
+                : undefined
+            }
           >
+            Close
             <span
               aria-hidden
-              className="relative block size-[0.9em] transition-transform duration-500 ease-out group-hover:rotate-90"
+              className="relative block size-[0.85em] transition-transform duration-500 ease-out group-hover:rotate-90"
             >
               <span className="absolute left-0 top-1/2 h-px w-full rotate-45 bg-current" />
               <span className="absolute left-0 top-1/2 h-px w-full -rotate-45 bg-current" />
             </span>
-            Close
           </button>
 
           <Link
             to="/"
             onClick={close}
             aria-label="Hatwater House home"
-            className="block h-[clamp(52px,6vw,115px)] w-[clamp(84px,9.6vw,185px)]"
+            className="absolute left-1/2 top-[clamp(12px,2.03vw,39px)] block aspect-[185/115] w-[clamp(96px,9.64vw,185px)] -translate-x-1/2"
+            style={
+              anchor?.logo
+                ? {
+                    left: anchor.logo.left,
+                    top: anchor.logo.top,
+                    width: anchor.logo.width,
+                    height: anchor.logo.height,
+                    translate: 'none',
+                  }
+                : undefined
+            }
           >
             <span
               className="block size-full bg-hw-bone hw-mask"
@@ -176,74 +252,74 @@ export function MenuOverlay({
               }}
             />
           </Link>
-          <span />
         </div>
 
-        <div className="flex flex-1 flex-col justify-center gap-10 md:flex-row md:items-center md:justify-between">
-          <nav aria-label="Main">
-            <ul className="group/nav m-0 flex list-none flex-col p-0">
-              {NAV_LINKS.map((link, index) => (
-                <li key={link.to} className="overflow-hidden">
-                  <Link
-                    to={link.to}
-                    prefetch="intent"
-                    onClick={close}
+        <div className="flex min-h-0 flex-1 flex-col px-[clamp(20px,7vw,135px)] pb-[clamp(20px,3vw,48px)]">
+          <div className="flex flex-1 flex-col justify-center gap-10 md:flex-row md:items-center md:justify-between">
+            <nav aria-label="Main">
+              <ul className="group/nav m-0 flex list-none flex-col p-0">
+                {NAV_LINKS.map((link, index) => (
+                  <li key={link.to} className="overflow-hidden">
+                    <Link
+                      to={link.to}
+                      prefetch="intent"
+                      onClick={close}
+                      data-menu="link"
+                      className="group flex items-baseline gap-[clamp(12px,1.6vw,28px)] py-[0.06em] text-hw-bone no-underline transition-opacity duration-500 hover:no-underline group-hover/nav:opacity-40 hover:!opacity-100 focus-visible:!opacity-100"
+                    >
+                      <MenuItemLabel index={index} label={link.label} />
+                    </Link>
+                  </li>
+                ))}
+                <li className="overflow-hidden">
+                  <button
+                    type="button"
                     data-menu="link"
-                    className="group flex items-baseline gap-[clamp(12px,1.6vw,28px)] py-[0.06em] text-hw-bone no-underline transition-opacity duration-500 hover:no-underline group-hover/nav:opacity-40 hover:!opacity-100 focus-visible:!opacity-100"
+                    onClick={() => open('cart')}
+                    className="group flex cursor-pointer items-baseline gap-[clamp(12px,1.6vw,28px)] border-0 bg-transparent p-0 py-[0.06em] text-left text-hw-bone transition-opacity duration-500 group-hover/nav:opacity-40 hover:!opacity-100 focus-visible:!opacity-100"
                   >
-                    <MenuItemLabel index={index} label={link.label} />
-                  </Link>
+                    <MenuItemLabel index={NAV_LINKS.length} label="Cart">
+                      <Suspense fallback={null}>
+                        <Await resolve={cart} errorElement={null}>
+                          {(cart) =>
+                            cart?.totalQuantity ? (
+                              <sup className="ml-2 font-grotesk text-[0.22em] font-medium tracking-normal text-hw-sand">
+                                ({cart.totalQuantity})
+                              </sup>
+                            ) : null
+                          }
+                        </Await>
+                      </Suspense>
+                    </MenuItemLabel>
+                  </button>
                 </li>
-              ))}
-              <li className="overflow-hidden">
-                <button
-                  type="button"
-                  data-menu="link"
-                  onClick={() => open('cart')}
-                  className="group flex cursor-pointer items-baseline gap-[clamp(12px,1.6vw,28px)] border-0 bg-transparent p-0 py-[0.06em] text-left text-hw-bone transition-opacity duration-500 group-hover/nav:opacity-40 hover:!opacity-100 focus-visible:!opacity-100"
-                >
-                  <MenuItemLabel index={NAV_LINKS.length} label="Cart">
-                    <Suspense fallback={null}>
-                      <Await resolve={cart} errorElement={null}>
-                        {(cart) =>
-                          cart?.totalQuantity ? (
-                            <sup className="ml-2 font-grotesk text-[0.22em] font-medium tracking-normal text-hw-sand">
-                              ({cart.totalQuantity})
-                            </sup>
-                          ) : null
-                        }
-                      </Await>
-                    </Suspense>
-                  </MenuItemLabel>
-                </button>
-              </li>
-            </ul>
-          </nav>
+              </ul>
+            </nav>
+
+            <div
+              data-menu="fade"
+              className="flex max-w-[26rem] flex-col gap-6 font-grotesk text-[clamp(14px,1.05vw,19px)] leading-relaxed text-hw-sand"
+            >
+              <p className="m-0 font-display text-[clamp(22px,1.9vw,36px)] leading-[1.3] text-hw-bone">
+                Western heritage. California perspective. Individual expression.
+              </p>
+              <Link
+                to={APPOINTMENT_URL}
+                onClick={close}
+                className="self-start border-b border-hw-sand/50 pb-1 uppercase tracking-[0.06em] text-hw-bone no-underline transition-colors duration-300 hover:border-hw-bone hover:no-underline"
+              >
+                Commission a Hat
+              </Link>
+            </div>
+          </div>
 
           <div
             data-menu="fade"
-            className="flex max-w-[26rem] flex-col gap-6 font-grotesk text-[clamp(14px,1.05vw,19px)] leading-relaxed text-hw-sand"
+            className="flex items-center justify-between border-t border-hw-bone/20 pt-[clamp(14px,1.6vw,24px)] font-grotesk text-[clamp(12px,0.85vw,15px)] uppercase tracking-[0.08em] text-hw-sand"
           >
-            <p className="m-0 font-display text-[clamp(22px,1.9vw,36px)] capitalize leading-[1.3] text-hw-bone">
-              Every hat is made just for you — shaped to order and finished by
-              hand.
-            </p>
-            <Link
-              to={APPOINTMENT_URL}
-              onClick={close}
-              className="self-start border-b border-hw-sand/50 pb-1 uppercase tracking-[0.06em] text-hw-bone no-underline transition-colors duration-300 hover:border-hw-bone hover:no-underline"
-            >
-              Request a custom hat
-            </Link>
+            <span>Hatwater House</span>
+            <span>Made to Order</span>
           </div>
-        </div>
-
-        <div
-          data-menu="fade"
-          className="flex items-center justify-between border-t border-hw-bone/20 pt-[clamp(14px,1.6vw,24px)] font-grotesk text-[clamp(12px,0.85vw,15px)] uppercase tracking-[0.08em] text-hw-sand"
-        >
-          <span>Hatwater House</span>
-          <span>Handmade to order</span>
         </div>
       </div>
     </div>

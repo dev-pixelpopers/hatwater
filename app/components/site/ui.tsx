@@ -111,7 +111,7 @@ export function ArrowPill({
         />
         <ArrowSwap className="-rotate-45 !h-[11px] !w-[15.5px]" />
       </span>
-      <span className="whitespace-nowrap font-grotesk text-[clamp(16px,1.05vw,20px)] capitalize text-hw-espresso transition-colors duration-500 group-hover:text-white">
+      <span className="whitespace-nowrap font-grotesk text-[clamp(16px,1.05vw,20px)] text-hw-espresso transition-colors duration-500 group-hover:text-white">
         {label}
       </span>
     </Link>

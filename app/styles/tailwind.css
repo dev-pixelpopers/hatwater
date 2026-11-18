@@ -5,6 +5,28 @@
 
 @import 'tailwindcss';
 
+/*
+ * `compact:` = phones, portrait tablets and other narrow or portrait
+ * viewports. The homepage swaps its scaled 1919 x 994 artboard for a fluid
+ * layout there, since the artboard would shrink to an unreadable letterbox.
+ */
+/* Height of the site header (logo + vertical padding, see Header.tsx);
+ * also used by the menu overlay's top bar and the About hero. */
+:root {
+  /* Keep the scrollbar's space when the menu/cart lock scrolling, so the
+   * centred header doesn't shift under the cursor. */
+  scrollbar-gutter: stable;
+  --header-h: calc(
+    2 * clamp(12px, 2.03vw, 39px) + clamp(59.68px, 5.993vw, 115px)
+  );
+}
+
+@custom-variant compact {
+  @media (max-width: 1023.98px), (orientation: portrait) {
+    @slot;
+  }
+}
+
 /* ------------------------------------------------------------------
  * Hatwater House - design tokens (pulled from Figma node 176:209)
  * ------------------------------------------------------------------ */

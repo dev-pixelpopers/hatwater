@@ -7,7 +7,7 @@ export const ABOUT_LINE_HEIGHT = 60;
 export const ABOUT_LINES = 7;
 
 /**
- * "Made just for you" card that slides over the hero (Figma "Group 22").
+ * Brand introduction card that slides over the hero (Figma "Group 22").
  * Positioned in hero-frame coordinates on the showcase track.
  */
 export function AboutCard() {
@@ -41,19 +41,18 @@ export function AboutCard() {
             data-anim="about-copy"
             className="absolute inset-0 overflow-hidden"
           >
-            <p className="m-0 ml-18 mt-49 w-1096 font-display fs-36 lh-60 capitalize text-hw-taupe">
-              <span className="text-hw-sand">
-                All of our hats are made just for you—not pulled from a shelf.
-                Once your order is placed,
-              </span>{' '}
-              we begin crafting your hat from the ground up, shaping it to your
-              specifications, and finishing it by hand. Because we source
-              premium felts in a variety of colors and qualities,{' '}
-              <span className="text-hw-sand">
-                production times may vary depending on material availability.
-                We appreciate your patience,
-              </span>{' '}
-              because good things take time—and a great hat is one of them
+            {/* Every line sits on the 60px grid the frosted strips follow. */}
+            <h2 className="m-0 ml-18 mt-49 font-display fs-48 lh-60 font-normal text-hw-cocoa">
+              An Individual Expression.
+            </h2>
+            <p className="m-0 ml-18 mt-60 w-1040 font-display fs-34 lh-60 text-hw-taupe">
+              Rooted in the Western heritage of California, Hatwater House
+              brings traditional hatmaking craftsmanship to a modern expression
+              of personal style.
+            </p>
+            <p className="m-0 ml-18 w-1040 font-display fs-34 lh-60 text-hw-chestnut">
+              Every hat begins with a considered silhouette and is shaped,
+              fitted, and finished with the individual in mind.
             </p>
           </div>
           {/* Frosted panel over the copy (Figma "Rectangle 145"), split into
@@ -74,10 +73,10 @@ export function AboutCard() {
           ))}
         </div>
         <PillButton
-          to="/pages/about"
-          label="Read more"
-          width={240}
-          gap={27}
+          to="/about"
+          label="Discover Our Story"
+          width={262}
+          gap={18}
           className="ml-18"
         />
       </div>

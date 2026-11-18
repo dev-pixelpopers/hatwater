@@ -6,7 +6,20 @@ export const NAV_LINKS = [
   {label: 'Contact', to: '/contact'},
 ];
 
+/** Footer navigation, as named in the copy brief. */
+export const FOOTER_LINKS = [
+  {label: 'The Collection', to: '/collections/all'},
+  {label: 'Our Story', to: '/about'},
+  {label: 'The Craft', to: '/about#craft'},
+  {label: 'Contact', to: '/contact'},
+];
+
 export const APPOINTMENT_URL = '/contact#appointment';
+/** "Plan Your Visit": the studio details at the top of the contact page. */
+export const VISIT_URL = '/contact#visit';
+
+export const BRAND_TAGLINE =
+  'Western heritage. California perspective. Individual expression.';
 
 export const SOCIAL_LINKS = [
   {

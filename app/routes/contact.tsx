@@ -27,15 +27,11 @@ export const meta: Route.MetaFunction = () => {
 
 export const handle = {fullBleed: true};
 
-// TODO: replace with the studio's published details before launch.
+// TODO(brief): add the confirmed studio address, opening hours and contact
+// details. Hours are deliberately not shown until they are verified.
 const STUDIO = {
-  location: ['Hatwater House Atelier', 'California, USA'],
+  location: ['Hatwater House', 'Los Angeles, California'],
   email: 'hello@hatwaterhouse.com',
-  hours: [
-    ['Tuesday – Friday', '10am – 6pm'],
-    ['Saturday', '10am – 4pm'],
-    ['Sunday – Monday', 'By appointment'],
-  ],
 };
 
 const STEPS = [
@@ -108,46 +104,38 @@ export default function Contact() {
           data-intro="fade"
           className="m-0 max-w-[44ch] text-[clamp(16px,1.1vw,20px)] leading-[1.6] text-hw-taupe lg:pb-[0.6vw]"
         >
-          Every Hatwater hat begins with a fitting. Visit the atelier, book a
-          virtual session, or bring an old favourite in for restoration – we’ll
-          take it from there.
+          Discover Hatwater House in Los Angeles, or request an appointment
+          below to begin a commission guided by personal style, proportion,
+          and the finer details.
         </p>
       </header>
 
       <section
         id="appointment"
         aria-labelledby="appointment-heading"
-        className="scroll-mt-[clamp(64px,5.6vw,96px)] border-t border-hw-espresso/10 bg-hw-linen/60 py-[clamp(56px,7vw,140px)]"
+        className="scroll-mt-6 border-t border-hw-espresso/10 bg-hw-linen/60 py-[clamp(56px,7vw,140px)]"
       >
         <div
           className={`${CONTAINER} grid gap-[clamp(48px,6vw,120px)] lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.4fr)]`}
         >
           <div className="flex flex-col gap-[clamp(32px,3vw,56px)]">
-            <div data-reveal className="flex flex-col gap-4">
-              <h2 className="m-0 font-display text-[clamp(30px,2.6vw,50px)] font-normal capitalize leading-[1.05] text-hw-espresso">
-                The atelier
+            <div
+              id="visit"
+              data-reveal
+              className="flex scroll-mt-6 flex-col gap-4"
+            >
+              <h2 className="m-0 font-display text-[clamp(30px,2.6vw,50px)] font-normal leading-[1.05] text-hw-espresso">
+                Visit the House
               </h2>
               <address className="flex flex-col gap-1 text-[clamp(15px,1vw,18px)] not-italic leading-[1.6] text-hw-taupe">
                 {STUDIO.location.map((line) => (
                   <span key={line}>{line}</span>
                 ))}
                 <span className="text-[13px] uppercase tracking-[0.16em] text-hw-copper">
-                  Studio visits by appointment only
+                  Appointments encouraged. Walk-ins welcome.
                 </span>
               </address>
             </div>
-
-            <dl data-reveal className="m-0 flex flex-col border-t border-hw-espresso/15">
-              {STUDIO.hours.map(([days, time]) => (
-                <div
-                  key={days}
-                  className="flex justify-between gap-4 border-b border-hw-espresso/15 py-3 text-[clamp(14px,0.95vw,17px)]"
-                >
-                  <dt className="text-hw-espresso">{days}</dt>
-                  <dd className="m-0 text-hw-taupe">{time}</dd>
-                </div>
-              ))}
-            </dl>
 
             <div data-reveal className="flex flex-col gap-2">
               <p className="m-0 text-[12px] font-bold uppercase tracking-[0.16em] text-hw-espresso">

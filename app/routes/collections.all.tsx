@@ -22,11 +22,11 @@ import {gsap, prefersReducedMotion, useGsapContext} from '~/lib/gsap';
 
 export const meta: Route.MetaFunction = () => {
   return [
-    {title: 'Shop | Hatwater House'},
+    {title: 'The California Collection | Hatwater House'},
     {
       name: 'description',
       content:
-        'Shop Hatwater House hats – western, fedora and flat-brim felt hats, each shaped to order and finished by hand.',
+        'The California Collection by Mark Alex: Western-inspired fur felt hats, each individually shaped and finished to order in Los Angeles.',
     },
   ];
 };
@@ -60,6 +60,27 @@ export async function loader({context}: Route.LoaderArgs) {
 }
 
 const ALL = 'all';
+
+const NUMBER_WORDS = [
+  'One',
+  'Two',
+  'Three',
+  'Four',
+  'Five',
+  'Six',
+  'Seven',
+  'Eight',
+  'Nine',
+  'Ten',
+  'Eleven',
+  'Twelve',
+];
+
+/** "Four Signature Styles" – counted from the store so it never goes stale. */
+function styleCount(count: number) {
+  const word = NUMBER_WORDS[count - 1] ?? String(count);
+  return `${word} Signature Style${count === 1 ? '' : 's'}`;
+}
 
 export default function Shop() {
   const {products} = useLoaderData<typeof loader>();
@@ -128,30 +149,35 @@ export default function Shop() {
       >
         <div className="flex flex-col gap-[clamp(18px,1.6vw,28px)]">
           <div data-intro="fade">
-            <Eyebrow>The collection</Eyebrow>
+            <Eyebrow>Mark Alex — The Collection</Eyebrow>
           </div>
           <h1
             data-intro="title"
-            className="m-0 font-display text-[clamp(52px,7.4vw,142px)] font-normal capitalize leading-[0.95] tracking-[-0.01em] text-hw-espresso"
+            className="m-0 font-display text-[clamp(52px,7.4vw,142px)] font-normal leading-[0.95] tracking-[-0.01em] text-hw-espresso"
           >
-            <SplitWords text="Hats made just for you" />
+            <SplitWords text="The California Collection" />
           </h1>
         </div>
         <div className="flex flex-col gap-6 lg:pb-[0.6vw]">
-          <p
+          <div
             data-intro="fade"
-            className="m-0 max-w-[44ch] text-[clamp(16px,1.1vw,20px)] leading-[1.6] text-hw-taupe"
+            className="flex max-w-[46ch] flex-col gap-[0.8em] text-[clamp(16px,1.1vw,20px)] leading-[1.6] text-hw-taupe"
           >
-            Felt western, fedora and flat-brim silhouettes, each blocked to
-            order in our California atelier and finished by hand. Choose your
-            colourway – we take care of the fit.
-          </p>
+            <p className="m-0 font-display text-[1.25em] leading-[1.35] text-hw-espresso">
+              A study in Western form, contemporary style, and individual
+              expression.
+            </p>
+            <p className="m-0">
+              Inspired by the landscape and culture of California, each design
+              begins with a distinctive silhouette and is individually shaped
+              and finished to order.
+            </p>
+          </div>
           <p
             data-intro="fade"
             className="m-0 text-[clamp(12px,0.75vw,14px)] uppercase tracking-[0.18em] text-hw-copper"
           >
-            {String(products.length).padStart(2, '0')} styles · Handmade to
-            order
+            {styleCount(products.length)} · Made to Order
           </p>
         </div>
         <span
@@ -161,7 +187,7 @@ export default function Shop() {
         />
       </header>
 
-      <div className="sticky top-[clamp(64px,5.6vw,96px)] z-30 border-b border-hw-espresso/10 bg-hw-cream/90 backdrop-blur-md">
+      <div className="sticky top-0 z-30 border-b border-hw-espresso/10 bg-hw-cream/90 backdrop-blur-md">
         <div
           className={`${CONTAINER} flex flex-col gap-3 py-[clamp(12px,1vw,18px)] md:flex-row md:items-center md:justify-between md:gap-8`}
         >
@@ -212,16 +238,17 @@ export default function Shop() {
         >
           <div className="absolute inset-0 -z-10 hw-panel-gradient" />
           <div className="flex flex-col gap-4">
-            <Eyebrow className="!text-hw-sand">Bespoke</Eyebrow>
-            <h2 className="m-0 font-display text-[clamp(32px,3.4vw,64px)] font-normal capitalize leading-[1.05] text-hw-bone">
-              Don’t see your hat? We’ll build it.
+            <Eyebrow className="!text-hw-sand">Commissions</Eyebrow>
+            <h2 className="m-0 font-display text-[clamp(32px,3.4vw,64px)] font-normal leading-[1.05] text-hw-bone">
+              Beyond the Collection.
             </h2>
             <p className="m-0 max-w-[52ch] text-[clamp(15px,1vw,19px)] leading-relaxed text-hw-sand">
-              Book a fitting and we’ll measure your head, choose the felt and
-              shape a one-of-one hat with you.
+              For those seeking something entirely their own, Hatwater House
+              offers individual commissions guided by personal style,
+              proportion, and the finer details.
             </p>
           </div>
-          <ArrowPill to={APPOINTMENT_URL} label="Book a fitting" />
+          <ArrowPill to={APPOINTMENT_URL} label="Commission a Hat" />
         </div>
       </section>
     </div>
@@ -373,6 +400,10 @@ const SHOP_PRODUCTS_QUERY = `#graphql
     }
     priceRange {
       minVariantPrice {
+        amount
+        currencyCode
+      }
+      maxVariantPrice {
         amount
         currencyCode
       }

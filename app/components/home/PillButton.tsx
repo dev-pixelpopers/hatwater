@@ -52,7 +52,7 @@ export function PillButton({
         <ArrowSwap className="-rotate-45" />
       </span>
       <span
-        className={`font-grotesk fs-20 lh-20 capitalize transition-colors duration-500 group-hover:text-white ${
+        className={`whitespace-nowrap font-grotesk fs-20 lh-20 transition-colors duration-500 group-hover:text-white ${
           tone === 'taupe' ? 'text-hw-taupe' : 'text-hw-espresso'
         }`}
       >

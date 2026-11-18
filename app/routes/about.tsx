@@ -19,17 +19,17 @@ export const meta: Route.MetaFunction = () => {
     {
       name: 'description',
       content:
-        'The Hatwater House story: bespoke western hats in premium beaver felt, fitted, shaped and finished by hand in California.',
+        'Hatwater House is a Los Angeles hat studio where Western heritage, individual style, and traditional craftsmanship meet. Founded by hatmaker Mark Alex.',
     },
   ];
 };
 
 export const handle = {fullBleed: true};
 
-const FACTS = [
-  {value: '7X', label: 'Beaver / rabbit felt blend'},
-  {value: '7', label: 'Head sizes, plus bespoke'},
-  {value: '1', label: 'Hat, made only for you'},
+const FOUNDER_CALLOUTS = [
+  'California Heritage',
+  'Premium Fur Felt',
+  'Individually Finished',
 ];
 
 export default function About() {
@@ -76,7 +76,7 @@ export default function About() {
       <section
         ref={heroRef}
         aria-label="Hatwater House"
-        className="relative isolate flex h-[calc(100svh-clamp(64px,5.6vw,96px))] min-h-[560px] items-end overflow-hidden bg-hw-espresso p-0 text-hw-bone"
+        className="relative isolate flex h-[calc(100svh-var(--header-h))] min-h-[560px] items-end overflow-hidden bg-hw-espresso p-0 text-hw-bone"
       >
         <div data-hero="media" className="absolute inset-0 -z-10">
           <img
@@ -85,7 +85,7 @@ export default function About() {
             alt="A man in a Hatwater felt western hat on the California coast"
             className="size-full object-cover object-[50%_28%]"
           />
-          <span className="absolute inset-0 bg-gradient-to-t from-hw-espresso via-hw-espresso/45 to-hw-espresso/10" />
+          <span className="absolute inset-0 bg-gradient-to-t from-hw-espresso via-hw-espresso/65 to-hw-espresso/10" />
         </div>
 
         <div
@@ -94,23 +94,31 @@ export default function About() {
         >
           <div className="flex flex-col gap-[clamp(14px,1.4vw,26px)]">
             <div data-hero="fade">
-              <Eyebrow className="!text-hw-sand">Our story</Eyebrow>
+              <Eyebrow className="!text-hw-sand">Our Story</Eyebrow>
             </div>
             <h1
               data-hero="title"
-              className="m-0 font-display text-[clamp(52px,8vw,156px)] font-normal capitalize leading-[0.92] tracking-[-0.01em] text-hw-bone"
+              className="m-0 font-display text-[clamp(46px,7vw,140px)] font-normal leading-[0.94] tracking-[-0.01em] text-hw-bone"
             >
-              <SplitWords text="Shaped by hand, made for you" />
+              <SplitWords text="A California Point of View." />
             </h1>
           </div>
-          <p
+          <div
             data-hero="fade"
-            className="m-0 max-w-[40ch] text-[clamp(16px,1.15vw,21px)] leading-[1.6] text-hw-sand"
+            className="flex max-w-[46ch] flex-col items-start gap-[clamp(12px,1vw,18px)] text-[clamp(15px,1.05vw,19px)] leading-[1.6] text-hw-bone [text-shadow:0_1px_12px_rgb(43_22_10/0.45)]"
           >
-            Hatwater House makes western hats the old way – fitted to one head,
-            shaped in beaver felt and finished by hand – with a distinctly
-            California point of view.
-          </p>
+            <p className="m-0">
+              Hatwater House is a Los Angeles hat studio where Western heritage,
+              individual style, and traditional craftsmanship meet.
+            </p>
+            <p className="m-0">
+              Founded by hatmaker Mark Alex, the house draws inspiration from
+              California’s distinctive Western history — from its ranching
+              traditions and vaquero culture to the unmistakable influence of
+              Hollywood.
+            </p>
+            <ArrowPill to="#craft" label="Discover the Craft" className="mt-2" />
+          </div>
         </div>
       </section>
 
@@ -133,47 +141,44 @@ export default function About() {
 
         <div className="flex flex-col gap-[clamp(18px,1.8vw,32px)]">
           <div data-reveal>
-            <Eyebrow>Where it began</Eyebrow>
+            <Eyebrow>The Founder</Eyebrow>
           </div>
           <h2
             id="origin-heading"
             data-reveal
-            className="m-0 font-display text-[clamp(38px,4.2vw,82px)] font-normal capitalize leading-[1] text-hw-espresso"
+            className="m-0 font-display text-[clamp(38px,4.2vw,82px)] font-normal leading-[1] text-hw-espresso"
           >
-            It started with one hat.
+            Mark Alex
           </h2>
-          <p data-reveal className="m-0 max-w-[56ch] text-[clamp(16px,1.1vw,20px)] leading-[1.7] text-hw-taupe">
-            At fifteen, Mark Alex bought his first real cowboy hat – a
-            telescope-crown western inspired by the one Little Joe Cartwright
-            wore on <em>Bonanza</em>. Decades later that same silhouette became
-            The LJ, and the beginning of Hatwater House.
+          <p data-reveal className="m-0 max-w-[56ch] font-display text-[clamp(20px,1.6vw,30px)] leading-[1.4] text-hw-espresso">
+            A lifelong appreciation for Western culture, craftsmanship, and
+            individual expression is at the heart of Hatwater House.
           </p>
           <p data-reveal className="m-0 max-w-[56ch] text-[clamp(16px,1.1vw,20px)] leading-[1.7] text-hw-taupe">
-            Rooted in the traditions of the Mexican vaquero and refined for
-            modern life, every hat we make is fitted, shaped and finished for
-            one person – equally at home on a ranch, on the coast or downtown.
+            For Mark Alex, a hat is more than an accessory. It is an extension
+            of the person who wears it — reflecting their character,
+            confidence, and personal sense of style.
           </p>
-          <blockquote
+          <p data-reveal className="m-0 max-w-[56ch] text-[clamp(16px,1.1vw,20px)] leading-[1.7] text-hw-taupe">
+            From the selection of the silhouette to its final proportions and
+            finishing details, the aim is simple: to create a hat that feels
+            unmistakably your own.
+          </p>
+          <ul
             data-reveal
-            className="m-0 border-l border-hw-copper pl-[clamp(16px,1.6vw,28px)] font-display text-[clamp(22px,1.8vw,34px)] leading-[1.3] text-hw-espresso"
+            className="m-0 grid list-none gap-4 border-t border-hw-espresso/15 p-0 pt-[clamp(18px,1.8vw,32px)] sm:grid-cols-3"
           >
-            “A hat should fit the way you live, not just the size of your head.”
-          </blockquote>
-          <dl
-            data-reveal
-            className="m-0 grid grid-cols-3 gap-4 border-t border-hw-espresso/15 pt-[clamp(18px,1.8vw,32px)]"
-          >
-            {FACTS.map((fact) => (
-              <div key={fact.label} className="flex flex-col gap-1">
-                <dt className="order-2 text-[clamp(11px,0.72vw,13px)] uppercase tracking-[0.14em] text-hw-taupe">
-                  {fact.label}
-                </dt>
-                <dd className="order-1 m-0 font-display text-[clamp(36px,3.4vw,64px)] leading-none text-hw-copper">
-                  {fact.value}
-                </dd>
-              </div>
+            {FOUNDER_CALLOUTS.map((callout, index) => (
+              <li key={callout} className="flex flex-col gap-1">
+                <span className="font-grotesk text-[clamp(11px,0.72vw,13px)] font-medium tracking-[0.16em] text-hw-copper">
+                  {String(index + 1).padStart(2, '0')}
+                </span>
+                <span className="font-display text-[clamp(20px,1.5vw,28px)] leading-[1.15] text-hw-espresso">
+                  {callout}
+                </span>
+              </li>
             ))}
-          </dl>
+          </ul>
         </div>
       </section>
 
@@ -187,14 +192,14 @@ export default function About() {
         <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr] lg:items-end">
           <div className="flex flex-col gap-[clamp(14px,1.4vw,24px)]">
             <div data-reveal>
-              <Eyebrow>The atelier</Eyebrow>
+              <Eyebrow>Our Principles</Eyebrow>
             </div>
             <h2
               id="values-heading"
               data-reveal
-              className="m-0 font-display text-[clamp(38px,4.2vw,82px)] font-normal capitalize leading-[1] text-hw-espresso"
+              className="m-0 font-display text-[clamp(38px,4.2vw,82px)] font-normal leading-[1] text-hw-espresso"
             >
-              What we hold to
+              What We Hold To
             </h2>
           </div>
           <p data-reveal className="m-0 max-w-[44ch] text-[clamp(16px,1.05vw,19px)] leading-[1.7] text-hw-taupe">
@@ -213,25 +218,30 @@ export default function About() {
         >
           <div className="absolute inset-0 -z-10 hw-panel-gradient" />
           <div className="flex flex-col items-start gap-[clamp(18px,1.8vw,30px)] px-[clamp(24px,5vw,96px)] py-[clamp(48px,6vw,120px)]">
-            <Eyebrow className="!text-hw-sand">Bespoke fittings</Eyebrow>
+            <Eyebrow className="!text-hw-sand">Commissions</Eyebrow>
             <h2
               id="cta-heading"
-              className="m-0 font-display text-[clamp(40px,4.6vw,90px)] font-normal capitalize leading-[0.98] text-hw-bone"
+              className="m-0 font-display text-[clamp(40px,4.6vw,90px)] font-normal leading-[0.98] text-hw-bone"
             >
-              Your hat begins with a conversation.
+              Beyond the Collection.
             </h2>
             <p className="m-0 max-w-[46ch] text-[clamp(16px,1.05vw,19px)] leading-[1.7] text-hw-sand">
-              Visit the studio or book a virtual session. We’ll measure, talk
-              felt and silhouette, and start shaping a hat that’s yours alone.
+              For those seeking something entirely their own, Hatwater House
+              offers individual commissions guided by personal style,
+              proportion, and the finer details.
+            </p>
+            <p className="m-0 max-w-[46ch] font-display text-[clamp(20px,1.5vw,28px)] leading-[1.4] text-hw-bone">
+              A distinctive silhouette. A particular color. A hat created with
+              one person in mind.
             </p>
             <div className="flex flex-wrap items-center gap-x-8 gap-y-4">
-              <ArrowPill to={APPOINTMENT_URL} label="Book an appointment" />
+              <ArrowPill to={APPOINTMENT_URL} label="Begin Your Commission" />
               <Link
                 to="/collections/all"
                 prefetch="intent"
                 className="border-b border-hw-sand/50 pb-1 text-[clamp(13px,0.85vw,15px)] font-medium uppercase tracking-[0.1em] text-hw-bone no-underline transition-colors hover:border-hw-bone hover:no-underline"
               >
-                Shop the collection
+                Explore the Collection
               </Link>
             </div>
           </div>

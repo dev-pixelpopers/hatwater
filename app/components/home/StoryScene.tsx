@@ -158,7 +158,7 @@ export function StoryScene() {
       >
         <img
           src="/assets/founder-portrait.png"
-          alt="Mark, founder of Hatwater House"
+          alt="Mark Alex, founder of Hatwater House"
           loading="lazy"
           className="absolute left-[-9.3%] top-[0.07%] h-full w-[117.02%]"
         />
@@ -184,10 +184,9 @@ export function StoryScene() {
         data-anim="story-copy"
         className="absolute left-494 top-624 h-350 w-723 overflow-hidden"
       >
-        <p className="m-0 mt-24 indent-345 font-display fs-36 lh-60 capitalize text-hw-taupe">
-          Beyond our current collection, Hatwater House offers custom hats
-          shaped around your style and fit. Explore the gallery below for a look
-          at hats we’ve created for our customers.
+        <p className="m-0 mt-24 indent-345 font-display fs-36 lh-60 text-hw-taupe">
+          Beyond the collection, Hatwater House offers individual commissions
+          guided by personal style, proportion, and the finer details.
         </p>
       </div>
     </ScrollScene>

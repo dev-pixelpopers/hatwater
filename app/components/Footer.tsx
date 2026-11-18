@@ -1,22 +1,25 @@
 import {Link} from 'react-router';
 import {
-  APPOINTMENT_URL,
+  BRAND_TAGLINE,
+  FOOTER_LINKS,
   LEGAL_LINKS,
-  NAV_LINKS,
   SOCIAL_LINKS,
+  VISIT_URL,
   maskStyle,
 } from '~/components/site/links';
 
 const HEADING =
-  'm-0 font-display text-[clamp(22px,1.45vw,28px)] font-normal capitalize leading-[1.6] tracking-[0.02em]';
+  'm-0 font-display text-[clamp(22px,1.45vw,28px)] font-normal leading-[1.6] tracking-[0.02em]';
 
 /**
  * Inner-page footer: the homepage brand footer (copper gradient, hat
- * silhouette, quick links / social / legal rows) in normal document flow.
+ * silhouette, navigation / social / visit / legal rows) in normal document flow.
  */
-export function Footer() {
+export function Footer({className = ''}: {className?: string}) {
   return (
-    <footer className="relative isolate mt-auto overflow-hidden font-grotesk text-white">
+    <footer
+      className={`relative isolate mt-auto overflow-hidden font-grotesk text-white ${className}`}
+    >
       <div className="absolute inset-0 -z-20 hw-footer-gradient" />
       <img
         src="/assets/footer-hat.png"
@@ -26,22 +29,27 @@ export function Footer() {
       />
 
       <div className="mx-auto flex max-w-[1720px] flex-col gap-[clamp(48px,6vw,110px)] px-[clamp(20px,6vw,124px)] pb-[clamp(28px,3vw,48px)] pt-[clamp(64px,9vw,170px)]">
-        <div className="grid gap-12 md:grid-cols-[auto_1fr_1fr_1.2fr] md:gap-[clamp(32px,6vw,160px)]">
-          <Link
-            to="/"
-            aria-label="Hatwater House home"
-            className="block h-[clamp(96px,8.4vw,160px)] w-[clamp(154px,13.4vw,257px)]"
-          >
-            <span
-              className="block size-full bg-hw-bone hw-mask"
-              style={maskStyle('/assets/logo-mask.png')}
-            />
-          </Link>
+        <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-[1.2fr_0.8fr_0.8fr_1.2fr] lg:gap-[clamp(32px,4vw,110px)]">
+          <div className="flex flex-col items-start gap-4 sm:col-span-2 lg:col-span-1">
+            <Link
+              to="/"
+              aria-label="Hatwater House by Mark Alex, home"
+              className="block h-[clamp(96px,8.4vw,160px)] w-[clamp(154px,13.4vw,257px)]"
+            >
+              <span
+                className="block size-full bg-hw-bone hw-mask"
+                style={maskStyle('/assets/logo-mask.png')}
+              />
+            </Link>
+            <p className="m-0 max-w-[30ch] font-display text-[clamp(17px,1.15vw,21px)] leading-[1.45] text-hw-bone/85">
+              {BRAND_TAGLINE}
+            </p>
+          </div>
 
-          <nav aria-label="Quick links" className="flex flex-col gap-3">
-            <h2 className={HEADING}>Quick links</h2>
+          <nav aria-label="Footer" className="flex flex-col gap-3">
+            <h2 className={HEADING}>Explore</h2>
             <ul className="m-0 flex list-none flex-col border-l border-hw-rule/70 p-0 pl-6">
-              {NAV_LINKS.map((link) => (
+              {FOOTER_LINKS.map((link) => (
                 <li key={link.to}>
                   <Link
                     to={link.to}
@@ -56,7 +64,7 @@ export function Footer() {
           </nav>
 
           <nav aria-label="Social" className="flex flex-col gap-3">
-            <h2 className={HEADING}>Connect with us</h2>
+            <h2 className={HEADING}>Connect</h2>
             <ul className="m-0 flex list-none flex-col border-l border-hw-rule/70 p-0 pl-6">
               {SOCIAL_LINKS.map((item) => (
                 <li key={item.label}>
@@ -77,17 +85,17 @@ export function Footer() {
             </ul>
           </nav>
 
-          <div className="flex flex-col items-start gap-5">
-            <h2 className={HEADING}>Made to measure</h2>
-            <p className="m-0 max-w-[28ch] text-[clamp(15px,0.95vw,18px)] leading-relaxed text-hw-bone/85">
-              Every hat is shaped to order and finished by hand. Book a fitting
-              at the studio or online.
-            </p>
+          <div className="flex flex-col items-start gap-4 sm:col-span-2 lg:col-span-1">
+            <h2 className={HEADING}>Visit the House</h2>
+            <div className="flex max-w-[32ch] flex-col gap-1 text-[clamp(15px,0.95vw,18px)] leading-relaxed text-hw-bone/85">
+              <p className="m-0">Discover Hatwater House in Los Angeles.</p>
+              <p className="m-0">Appointments encouraged. Walk-ins welcome.</p>
+            </div>
             <Link
-              to={APPOINTMENT_URL}
-              className="group inline-flex items-center gap-3 border-b border-hw-bone/50 pb-1 text-[clamp(13px,0.85vw,15px)] font-medium uppercase tracking-[0.1em] text-hw-bone no-underline transition-colors hover:border-hw-bone hover:no-underline"
+              to={VISIT_URL}
+              className="group mt-1 inline-flex items-center gap-3 border-b border-hw-bone/50 pb-1 text-[clamp(13px,0.85vw,15px)] font-medium uppercase tracking-[0.1em] text-hw-bone no-underline transition-colors hover:border-hw-bone hover:no-underline"
             >
-              Book an appointment
+              Plan Your Visit
               <span
                 aria-hidden
                 className="transition-transform duration-500 group-hover:translate-x-1"
@@ -102,7 +110,7 @@ export function Footer() {
           <p className="m-0 text-[clamp(14px,0.95vw,18px)]">
             © 2026 FPLLC. All Rights Reserved.
           </p>
-          <nav aria-label="Legal" className="flex gap-[clamp(20px,2.2vw,42px)]">
+          <nav aria-label="Legal" className="flex flex-wrap gap-x-[clamp(20px,2.2vw,42px)] gap-y-2">
             {LEGAL_LINKS.map((link) => (
               <Link
                 key={link.label}

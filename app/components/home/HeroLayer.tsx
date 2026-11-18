@@ -6,6 +6,7 @@ import {
   useGsapContext,
 } from '~/lib/gsap';
 import { HeroHeader } from './HeroHeader';
+import { APPOINTMENT_URL } from '~/components/site/links';
 import { PillButton } from './PillButton';
 
 export type HeroIntroHandle = {
@@ -107,22 +108,25 @@ export const HeroLayer = forwardRef<HeroIntroHandle>(
         </div>
 
         <div className="absolute left-126 top-447 z-20 flex flex-col gap-24">
-          <div className="h-215 w-443 overflow-hidden">
+          <div className="h-145 w-443 overflow-hidden">
             <h1
               data-anim="headline"
-              className="m-0 font-display fs-62 lh-66 font-normal capitalize text-hw-mist"
+              className="m-0 font-display fs-62 lh-66 font-normal text-hw-mist"
             >
-              All of our hats
+              Made for One.
               <br />
-              are made just
-              <br />
-              for you
+              Made for You.
             </h1>
           </div>
-          <div data-anim="hero-cta">
+          <div data-anim="hero-cta" className="flex flex-col gap-28">
+            <p className="m-0 w-340 font-grotesk fs-21 lh-31 text-hw-mist">
+              Western-inspired hats, individually shaped and finished in Los
+              Angeles.
+            </p>
             <PillButton
-              to="/pages/contact"
-              label="Custom request"
+              to={APPOINTMENT_URL}
+              label="Commission a Hat"
+              width={262}
               tone="taupe"
             />
           </div>

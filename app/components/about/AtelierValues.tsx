@@ -2,23 +2,23 @@ import {useState} from 'react';
 
 const VALUES = [
   {
-    title: 'Made to measure',
-    copy: 'No off-the-shelf sizing. Each hat is blocked to your measurements and shaped to the way you wear it.',
+    title: 'Fitted to the Individual',
+    copy: 'Each hat is fitted to its wearer and shaped around head shape, proportion, and the way it will be worn.',
     image: '/assets/story-2.png',
   },
   {
-    title: 'Honest materials',
-    copy: 'Premium 7X beaver and rabbit felt, or pure beaver – chosen for weight, hand and the way it ages.',
+    title: 'Honest Materials',
+    copy: 'Premium fur felt, from refined rabbit-and-beaver blends to pure beaver — chosen for texture, character, and the way it holds a shape.',
     image: '/assets/gallery-11.png',
   },
   {
-    title: 'Built to be worn',
-    copy: 'Hats for the ranch, the coast and the city. Made to be lived in every day and handed down after.',
+    title: 'Built to Be Worn',
+    copy: 'Western hats for the ranch, the coast, and the city — made to be lived in every day.',
     image: '/assets/story-3.png',
   },
   {
-    title: 'California at heart',
-    copy: 'Rooted in the vaquero tradition and shaped through a distinctly California point of view.',
+    title: 'California at Heart',
+    copy: 'Rooted in California’s ranching traditions and vaquero culture, and shaped through a distinctly Californian point of view.',
     image: '/assets/story-1.png',
   },
 ];
@@ -68,7 +68,7 @@ export function AtelierValues() {
                 <span className="font-grotesk text-[clamp(12px,0.8vw,15px)] font-medium tracking-[0.16em] text-hw-copper">
                   {String(index + 1).padStart(2, '0')}
                 </span>
-                <span className="font-display text-[clamp(26px,2.2vw,42px)] capitalize leading-[1.05]">
+                <span className="font-display text-[clamp(26px,2.2vw,42px)] leading-[1.05]">
                   {value.title}
                 </span>
               </span>

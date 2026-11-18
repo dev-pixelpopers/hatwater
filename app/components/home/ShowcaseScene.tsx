@@ -57,10 +57,16 @@ const BLUR_CLIP = {hidden: inset(0, 0, 100)};
 const BLUR_REVEAL_SPAN = ABOUT_BOX_HEIGHT - ABOUT_COPY_TOP;
 /**
  * Thaw: each line fades over this share of its 1-unit phase; the starts are
- * spread so the last line finishes exactly at the end of the phase.
+ * spread so the last line clears at THAW_SPAN, leaving the rest of the phase
+ * with the copy fully legible (the brief asks that moving text not linger
+ * behind the frost).
  */
-const LINE_THAW_DURATION = 2 / (ABOUT_LINES + 1);
-const LINE_THAW_STAGGER = (1 - LINE_THAW_DURATION) / (ABOUT_LINES - 1);
+const THAW_SPAN = 0.6;
+/** Starting blur, as a share of the full frost strength. */
+const BLUR_START = 0.65;
+const LINE_THAW_DURATION = (THAW_SPAN * 2) / (ABOUT_LINES + 1);
+const LINE_THAW_STAGGER =
+  (THAW_SPAN - LINE_THAW_DURATION) / (ABOUT_LINES - 1);
 
 const hatSelector = (id: string) => `[data-hat="${id}"]`;
 
@@ -151,7 +157,7 @@ export const ShowcaseScene = forwardRef<HeroIntroHandle, ShowcaseSceneProps>(
       gsap.set(aboutCopy, {clipPath: ABOUT_CLIP.hidden});
       gsap.set(aboutBlur, {
         clipPath: BLUR_CLIP.hidden,
-        '--blur-strength': 1,
+        '--blur-strength': BLUR_START,
         autoAlpha: 1,
       });
       gsap.set(rings, {scale: 0.157, transformOrigin: '50% 50%'});
