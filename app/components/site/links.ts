@@ -18,6 +18,19 @@ export const APPOINTMENT_URL = '/contact#appointment';
 /** "Plan Your Visit": the studio details at the top of the contact page. */
 export const VISIT_URL = '/contact#visit';
 
+/** Studio details shown on the contact page and in both footers. */
+export const STUDIO = {
+  name: 'Hatwater House',
+  street: '3042 Glendale Blvd.',
+  city: 'Los Angeles, CA 90039',
+  phone: '323-342-4313',
+  phoneHref: 'tel:+13233424313',
+  hours: 'Appointment Only',
+  email: 'hello@hatwaterhouse.com',
+  mapsUrl:
+    'https://www.google.com/maps/search/?api=1&query=3042+Glendale+Blvd+Los+Angeles+CA+90039',
+};
+
 export const BRAND_TAGLINE =
   'Western heritage. California perspective. Individual expression.';
 

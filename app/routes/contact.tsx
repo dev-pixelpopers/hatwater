@@ -2,6 +2,7 @@ import {useRef} from 'react';
 import {data} from 'react-router';
 import type {Route} from './+types/contact';
 import {AppointmentForm} from '~/components/contact/AppointmentForm';
+import {STUDIO} from '~/components/site/links';
 import {
   validateAppointment,
   type AppointmentResult,
@@ -26,13 +27,6 @@ export const meta: Route.MetaFunction = () => {
 };
 
 export const handle = {fullBleed: true};
-
-// TODO(brief): add the confirmed studio address, opening hours and contact
-// details. Hours are deliberately not shown until they are verified.
-const STUDIO = {
-  location: ['Hatwater House', 'Los Angeles, California'],
-  email: 'hello@hatwaterhouse.com',
-};
 
 const STEPS = [
   {title: 'Request', copy: 'Tell us what you have in mind and when suits you.'},
@@ -128,12 +122,26 @@ export default function Contact() {
                 Visit the House
               </h2>
               <address className="flex flex-col gap-1 text-[clamp(15px,1vw,18px)] not-italic leading-[1.6] text-hw-taupe">
-                {STUDIO.location.map((line) => (
-                  <span key={line}>{line}</span>
-                ))}
-                <span className="text-[13px] uppercase tracking-[0.16em] text-hw-copper">
-                  Appointments encouraged. Walk-ins welcome.
+                <a
+                  href={STUDIO.mapsUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex flex-col text-hw-taupe no-underline hover:text-hw-espresso hover:no-underline"
+                >
+                  <span>{STUDIO.name}</span>
+                  <span>{STUDIO.street}</span>
+                  <span>{STUDIO.city}</span>
+                </a>
+                <span className="mt-2">
+                  Tel:{' '}
+                  <a
+                    href={STUDIO.phoneHref}
+                    className="text-hw-espresso no-underline hover:underline"
+                  >
+                    {STUDIO.phone}
+                  </a>
                 </span>
+                <span>Hours: {STUDIO.hours}</span>
               </address>
             </div>
 

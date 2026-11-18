@@ -4,6 +4,7 @@ import {
   FOOTER_LINKS,
   LEGAL_LINKS,
   SOCIAL_LINKS,
+  STUDIO,
   VISIT_URL,
   maskStyle,
 } from '~/components/site/links';
@@ -88,8 +89,21 @@ export function Footer({className = ''}: {className?: string}) {
           <div className="flex flex-col items-start gap-4 sm:col-span-2 lg:col-span-1">
             <h2 className={HEADING}>Visit the House</h2>
             <div className="flex max-w-[32ch] flex-col gap-1 text-[clamp(15px,0.95vw,18px)] leading-relaxed text-hw-bone/85">
-              <p className="m-0">Discover Hatwater House in Los Angeles.</p>
-              <p className="m-0">Appointments encouraged. Walk-ins welcome.</p>
+              <p className="m-0">
+                {STUDIO.street}
+                <br />
+                {STUDIO.city}
+              </p>
+              <p className="m-0">
+                Tel:{' '}
+                <a
+                  href={STUDIO.phoneHref}
+                  className="text-hw-bone no-underline hover:underline"
+                >
+                  {STUDIO.phone}
+                </a>
+              </p>
+              <p className="m-0">Hours: {STUDIO.hours}</p>
             </div>
             <Link
               to={VISIT_URL}

@@ -4,6 +4,7 @@ import {
   FOOTER_LINKS,
   LEGAL_LINKS as LEGAL,
   SOCIAL_LINKS as SOCIAL,
+  STUDIO,
   VISIT_URL,
   maskStyle,
 } from '~/components/site/links';
@@ -98,9 +99,19 @@ export function SiteFooter() {
             Visit the House
           </h2>
           <p className="m-0 mt-12 font-grotesk fs-19 lh-30 text-hw-bone">
-            Discover Hatwater House in Los Angeles.
+            {STUDIO.street}
             <br />
-            Appointments encouraged. Walk-ins welcome.
+            {STUDIO.city}
+            <br />
+            Tel:{' '}
+            <a
+              href={STUDIO.phoneHref}
+              className="text-hw-bone no-underline"
+            >
+              {STUDIO.phone}
+            </a>
+            <br />
+            Hours: {STUDIO.hours}
           </p>
           <Link
             to={VISIT_URL}

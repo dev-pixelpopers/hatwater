@@ -5,7 +5,7 @@ import type {HomepageProductFragment} from 'storefrontapi.generated';
  * (Figma variants 8 -> 10 and 14). Every value is in Figma pixels.
  */
 
-export type HatKey = 'lj' | 'rca' | 'gus' | 'white';
+export type HatKey = 'lj' | 'rca' | 'pacific' | 'gus';
 
 export type HatArt = {
   src: string;
@@ -36,17 +36,19 @@ export const HATS: Record<HatKey, HatArt> = {
     crop: {width: '100.18%', height: '208.19%', left: '-0.09%', top: '-54.09%'},
     centerRotation: -14.84,
   },
-  gus: {
+  // The asset file names predate the final product names: hat-gus.png is the
+  // brown Pacific Rim, hat-white.png is the cream California Gus.
+  pacific: {
     src: '/assets/hat-gus.png',
-    alt: 'California Gus – cream hat with a brown ribbon',
+    alt: 'Pacific Rim – brown felt hat with a grosgrain ribbon',
     width: 293.25,
     height: 165,
     crop: {width: '100%', height: '235.79%', left: '0%', top: '-58.34%'},
     centerRotation: -18.15,
   },
-  white: {
+  gus: {
     src: '/assets/hat-white.png',
-    alt: 'White felt cowboy hat',
+    alt: 'California Gus – cream felt hat with a brown ribbon',
     width: 276.5,
     height: 170,
     crop: {width: '100%', height: '215.93%', left: '0%', top: '-53.17%'},
@@ -90,13 +92,13 @@ export type CarouselHat = {id: string; hat: HatKey; slot: number};
 
 /** The centre item (index 2) is the hat that flies off the chair. */
 export const CAROUSEL: CarouselHat[] = [
-  {id: 'white-a', hat: 'white', slot: -2},
-  {id: 'gus-a', hat: 'gus', slot: -1},
+  {id: 'gus-a', hat: 'gus', slot: -2},
+  {id: 'pacific-a', hat: 'pacific', slot: -1},
   {id: 'lj-a', hat: 'lj', slot: 0},
   {id: 'rca', hat: 'rca', slot: 1},
-  {id: 'gus-b', hat: 'gus', slot: 2},
+  {id: 'pacific-b', hat: 'pacific', slot: 2},
   {id: 'lj-b', hat: 'lj', slot: 3},
-  {id: 'white-b', hat: 'white', slot: 4},
+  {id: 'gus-b', hat: 'gus', slot: 4},
 ];
 export const HERO_HAT_ID = 'lj-a';
 /** The LJ that lands in the ring after the last step and flies off. */
@@ -116,7 +118,7 @@ export type CollectionItem = {
 export const COLLECTION_ITEMS: CollectionItem[] = [
   {name: 'The LJ', top: 20},
   {name: 'Everyday RCA', top: 212},
-  {name: 'California Gus', top: 415},
+  {name: 'Pacific Rim', top: 415},
   {name: 'The LJ', top: 630},
 ].map((item) => ({
   ...item,

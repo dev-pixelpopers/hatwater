@@ -1,6 +1,6 @@
 import {useRef} from 'react';
 import {Link} from 'react-router';
-import {Image, Money} from '@shopify/hydrogen';
+import {Image} from '@shopify/hydrogen';
 import type {HomepageProductFragment} from 'storefrontapi.generated';
 import {APPOINTMENT_URL} from '~/components/site/links';
 import {
@@ -242,7 +242,6 @@ export function CompactHome({
 
 function CollectionCard({product}: {product: HomepageProductFragment}) {
   const image = product.featuredImage;
-  const {minVariantPrice, maxVariantPrice} = product.priceRange;
   const url = `/products/${product.handle}`;
   return (
     <article className="flex flex-col gap-3">
@@ -267,15 +266,9 @@ function CollectionCard({product}: {product: HomepageProductFragment}) {
           Made to Order
         </span>
       </Link>
-      <div className="flex items-baseline justify-between gap-3">
-        <h3 className="m-0 font-display text-[clamp(22px,5vw,28px)] font-normal leading-[1.1] text-hw-espresso">
-          {product.title}
-        </h3>
-        <p className="m-0 shrink-0 text-[15px] text-hw-taupe">
-          {minVariantPrice.amount !== maxVariantPrice.amount && 'From '}
-          <Money as="span" data={minVariantPrice} withoutTrailingZeros />
-        </p>
-      </div>
+      <h3 className="m-0 font-display text-[clamp(22px,5vw,28px)] font-normal leading-[1.1] text-hw-espresso">
+        {product.title}
+      </h3>
       <Link
         to={url}
         prefetch="intent"
