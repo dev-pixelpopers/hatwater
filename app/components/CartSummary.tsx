@@ -3,6 +3,7 @@ import type {CartLayout} from '~/components/CartMain';
 import {CartForm, Money, type OptimisticCart} from '@shopify/hydrogen';
 import {useEffect, useId, useRef, useState} from 'react';
 import {useFetcher} from 'react-router';
+import {ArrowSwap} from '~/components/home/ArrowSwap';
 
 type CartSummaryProps = {
   cart: OptimisticCart<CartApiQueryFragment | null>;
@@ -19,8 +20,34 @@ export function CartSummary({cart, layout}: CartSummaryProps) {
   const giftCardInputId = useId();
 
   return (
-    <div aria-labelledby={summaryId} className={className}>
-      <h4 id={summaryId}>Totals</h4>
+    <div aria-labelledby={summaryId} className={`cart-summary ${className}`}>
+      <h4 id={summaryId} className="sr-only">
+        Totals
+      </h4>
+      <details
+        className="cart-codes"
+        open={Boolean(
+          cart?.discountCodes?.some((code) => code.applicable) ||
+            cart?.appliedGiftCards?.length,
+        )}
+      >
+        <summary>
+          Discount or gift card
+          <span aria-hidden className="cart-codes-icon" />
+        </summary>
+        <div className="cart-codes-body">
+          <CartDiscounts
+            discountCodes={cart?.discountCodes}
+            discountsHeadingId={discountsHeadingId}
+            discountCodeInputId={discountCodeInputId}
+          />
+          <CartGiftCard
+            giftCardCodes={cart?.appliedGiftCards}
+            giftCardHeadingId={giftCardHeadingId}
+            giftCardInputId={giftCardInputId}
+          />
+        </div>
+      </details>
       <dl role="group" className="cart-subtotal">
         <dt>Subtotal</dt>
         <dd>
@@ -31,16 +58,9 @@ export function CartSummary({cart, layout}: CartSummaryProps) {
           )}
         </dd>
       </dl>
-      <CartDiscounts
-        discountCodes={cart?.discountCodes}
-        discountsHeadingId={discountsHeadingId}
-        discountCodeInputId={discountCodeInputId}
-      />
-      <CartGiftCard
-        giftCardCodes={cart?.appliedGiftCards}
-        giftCardHeadingId={giftCardHeadingId}
-        giftCardInputId={giftCardInputId}
-      />
+      <p className="cart-note">
+        Taxes and shipping calculated at checkout.
+      </p>
       <CartCheckoutActions checkoutUrl={cart?.checkoutUrl} />
     </div>
   );
@@ -50,12 +70,12 @@ function CartCheckoutActions({checkoutUrl}: {checkoutUrl?: string}) {
   if (!checkoutUrl) return null;
 
   return (
-    <div>
-      <a href={checkoutUrl} target="_self">
-        <p>Continue to Checkout &rarr;</p>
-      </a>
-      <br />
-    </div>
+    <a href={checkoutUrl} target="_self" className="cart-checkout group">
+      <span>Checkout</span>
+      <span className="cart-checkout-disc">
+        <ArrowSwap className="-rotate-45 !h-[10px] !w-[14px]" />
+      </span>
+    </a>
   );
 }
 
@@ -86,7 +106,6 @@ function CartDiscounts({
               aria-labelledby={discountsHeadingId}
             >
               <code>{codes?.join(', ')}</code>
-              &nbsp;
               <button type="submit" aria-label="Remove discount">
                 Remove
               </button>
@@ -107,7 +126,6 @@ function CartDiscounts({
             name="discountCode"
             placeholder="Discount code"
           />
-          &nbsp;
           <button type="submit" aria-label="Apply discount code">
             Apply
           </button>
@@ -212,7 +230,6 @@ function CartGiftCard({
                 }}
               >
                 <code>***{giftCard.lastCharacters}</code>
-                &nbsp;
                 <Money data={giftCard.amountUsed} />
               </RemoveGiftCardForm>
             </dd>
@@ -232,7 +249,6 @@ function CartGiftCard({
             placeholder="Gift card code"
             ref={giftCardCodeInput}
           />
-          &nbsp;
           <button
             type="submit"
             disabled={giftCardAddFetcher.state !== 'idle'}
@@ -286,7 +302,6 @@ function RemoveGiftCardForm({
       }}
     >
       {children}
-      &nbsp;
       <button
         type="submit"
         aria-label={`Remove gift card ending in ${lastCharacters}`}

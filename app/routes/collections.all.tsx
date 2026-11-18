@@ -1,122 +1,455 @@
-import type {Route} from './+types/collections.all';
+import {useEffect, useMemo, useRef, useState} from 'react';
 import {useLoaderData} from 'react-router';
-import {getPaginationVariables, Image, Money} from '@shopify/hydrogen';
-import {PaginatedResourceSection} from '~/components/PaginatedResourceSection';
-import {ProductItem} from '~/components/ProductItem';
-import type {CollectionItemFragment} from 'storefrontapi.generated';
+import type {Route} from './+types/collections.all';
+import {ProductCard} from '~/components/shop/ProductCard';
+import {
+  FALLBACK_PRODUCTS,
+  SORT_OPTIONS,
+  buildCategories,
+  sortProducts,
+  type ShopProduct,
+  type SortValue,
+} from '~/components/shop/shopData';
+import {APPOINTMENT_URL} from '~/components/site/links';
+import {
+  ArrowPill,
+  CONTAINER,
+  Eyebrow,
+  SplitWords,
+  useScrollReveal,
+} from '~/components/site/ui';
+import {gsap, prefersReducedMotion, useGsapContext} from '~/lib/gsap';
 
 export const meta: Route.MetaFunction = () => {
-  return [{title: `Hydrogen | Products`}];
+  return [
+    {title: 'The California Collection | Hatwater House'},
+    {
+      name: 'description',
+      content:
+        'The California Collection by Mark Alex: Western-inspired fur felt hats, each individually shaped and finished to order in Los Angeles.',
+    },
+  ];
 };
 
-export async function loader(args: Route.LoaderArgs) {
-  // Start fetching non-critical data without blocking time to first byte
-  const deferredData = loadDeferredData(args);
+export const handle = {fullBleed: true};
 
-  // Await the critical data required to render initial state of the page
-  const criticalData = await loadCriticalData(args);
+export async function loader({context}: Route.LoaderArgs) {
+  const {storefront} = context;
 
-  return {...deferredData, ...criticalData};
+  // A Storefront API error or an empty store falls back to the static
+  // catalogue so the page always renders complete.
+  const products: ShopProduct[] = await storefront
+    .query(SHOP_PRODUCTS_QUERY, {
+      variables: {
+        first: 48,
+        country: storefront.i18n.country,
+        language: storefront.i18n.language,
+      },
+      cache: storefront.CacheShort(),
+    })
+    .then(({products}) => products.nodes)
+    .catch((error: unknown) => {
+      console.error(error);
+      return [];
+    });
+
+  return {
+    products: products.length ? products : FALLBACK_PRODUCTS,
+    isFallback: !products.length,
+  };
 }
 
-/**
- * Load data necessary for rendering content above the fold. This is the critical data
- * needed to render the page. If it's unavailable, the whole page should 400 or 500 error.
- */
-async function loadCriticalData({context, request}: Route.LoaderArgs) {
-  const {storefront} = context;
-  const paginationVariables = getPaginationVariables(request, {
-    pageBy: 8,
+const ALL = 'all';
+
+const NUMBER_WORDS = [
+  'One',
+  'Two',
+  'Three',
+  'Four',
+  'Five',
+  'Six',
+  'Seven',
+  'Eight',
+  'Nine',
+  'Ten',
+  'Eleven',
+  'Twelve',
+];
+
+/** "Four Signature Styles" – counted from the store so it never goes stale. */
+function styleCount(count: number) {
+  const word = NUMBER_WORDS[count - 1] ?? String(count);
+  return `${word} Signature Style${count === 1 ? '' : 's'}`;
+}
+
+export default function Shop() {
+  const {products} = useLoaderData<typeof loader>();
+  const [active, setActive] = useState(ALL);
+  const [sort, setSort] = useState<SortValue>('featured');
+
+  const {label: groupLabel, categories} = useMemo(
+    () => buildCategories(products),
+    [products],
+  );
+  const visible = useMemo(() => {
+    const category = categories.find((item) => item.id === active);
+    const filtered = category
+      ? products.filter((product) => category.productIds.includes(product.id))
+      : products;
+    return sortProducts(filtered, sort);
+  }, [products, categories, active, sort]);
+
+  const rootRef = useRef<HTMLDivElement>(null);
+  const gridRef = useRef<HTMLDivElement>(null);
+  useScrollReveal(rootRef);
+
+  // Editorial header entrance.
+  useGsapContext(rootRef, () => {
+    if (prefersReducedMotion()) return;
+    gsap
+      .timeline({defaults: {ease: 'expo.out'}})
+      .from('[data-intro="title"] [data-word]', {
+        yPercent: 110,
+        duration: 1.2,
+        stagger: 0.08,
+      })
+      .from(
+        '[data-intro="fade"]',
+        {autoAlpha: 0, y: 24, duration: 1, stagger: 0.1},
+        0.35,
+      )
+      .from(
+        '[data-intro="rule"]',
+        {scaleX: 0, transformOrigin: 'left center', duration: 1.4},
+        0.2,
+      );
   });
 
-  const [{products}] = await Promise.all([
-    storefront.query(CATALOG_QUERY, {
-      variables: {...paginationVariables},
-    }),
-    // Add other queries here, so that they are loaded in parallel
-  ]);
-  return {products};
-}
-
-/**
- * Load data for rendering content below the fold. This data is deferred and will be
- * fetched after the initial page load. If it's unavailable, the page should still 200.
- * Make sure to not throw any errors here, as it will cause the page to 500.
- */
-function loadDeferredData({context}: Route.LoaderArgs) {
-  return {};
-}
-
-export default function Collection() {
-  const {products} = useLoaderData<typeof loader>();
+  // Cards cascade back in whenever the filter or sort changes.
+  useGsapContext(
+    gridRef,
+    () => {
+      if (prefersReducedMotion()) return;
+      gsap.from('[data-card]', {
+        autoAlpha: 0,
+        y: 40,
+        duration: 0.9,
+        ease: 'expo.out',
+        stagger: 0.07,
+        clearProps: 'all',
+      });
+    },
+    [active, sort],
+  );
 
   return (
-    <div className="collection">
-      <h1>Products</h1>
-      <PaginatedResourceSection<CollectionItemFragment>
-        connection={products}
-        resourcesClassName="products-grid"
+    <div ref={rootRef} className="hw-page bg-hw-cream font-grotesk text-hw-espresso">
+      <header
+        className={`${CONTAINER} grid gap-[clamp(28px,3vw,56px)] pb-[clamp(36px,4vw,72px)] pt-[clamp(48px,7vw,130px)] lg:grid-cols-[1.4fr_1fr] lg:items-end`}
       >
-        {({node: product, index}) => (
-          <ProductItem
-            key={product.id}
-            product={product}
-            loading={index < 8 ? 'eager' : undefined}
+        <div className="flex flex-col gap-[clamp(18px,1.6vw,28px)]">
+          <div data-intro="fade">
+            <Eyebrow>Mark Alex — The Collection</Eyebrow>
+          </div>
+          <h1
+            data-intro="title"
+            className="m-0 font-display text-[clamp(52px,7.4vw,142px)] font-normal leading-[0.95] tracking-[-0.01em] text-hw-espresso"
+          >
+            <SplitWords text="The California Collection" />
+          </h1>
+        </div>
+        <div className="flex flex-col gap-6 lg:pb-[0.6vw]">
+          <div
+            data-intro="fade"
+            className="flex max-w-[46ch] flex-col gap-[0.8em] text-[clamp(16px,1.1vw,20px)] leading-[1.6] text-hw-taupe"
+          >
+            <p className="m-0 font-display text-[1.25em] leading-[1.35] text-hw-espresso">
+              A study in Western form, contemporary style, and individual
+              expression.
+            </p>
+            <p className="m-0">
+              Inspired by the landscape and culture of California, each design
+              begins with a distinctive silhouette and is individually shaped
+              and finished to order.
+            </p>
+          </div>
+          <p
+            data-intro="fade"
+            className="m-0 text-[clamp(12px,0.75vw,14px)] uppercase tracking-[0.18em] text-hw-copper"
+          >
+            {styleCount(products.length)} · Made to Order
+          </p>
+        </div>
+        <span
+          data-intro="rule"
+          aria-hidden
+          className="h-px w-full bg-hw-espresso/15 lg:col-span-2"
+        />
+      </header>
+
+      <div className="sticky top-0 z-30 border-b border-hw-espresso/10 bg-hw-cream/90 backdrop-blur-md">
+        <div
+          className={`${CONTAINER} flex flex-col gap-3 py-[clamp(12px,1vw,18px)] md:flex-row md:items-center md:justify-between md:gap-8`}
+        >
+          <FilterPills
+            label={groupLabel}
+            categories={categories.map(({id, label, productIds}) => ({
+              id,
+              label,
+              count: productIds.length,
+            }))}
+            total={products.length}
+            active={active}
+            onChange={setActive}
           />
+          <SortSelect value={sort} onChange={setSort} />
+        </div>
+      </div>
+
+      <section
+        aria-label="Products"
+        className={`${CONTAINER} py-[clamp(36px,4vw,80px)]`}
+      >
+        <p className="sr-only" role="status" aria-live="polite">
+          Showing {visible.length} of {products.length} hats
+        </p>
+        <div
+          ref={gridRef}
+          className="grid grid-cols-1 gap-x-[clamp(12px,1.6vw,32px)] gap-y-[clamp(40px,4vw,80px)] min-[480px]:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+        >
+          {visible.map((product, index) => (
+            <ProductCard key={product.id} product={product} index={index} />
+          ))}
+        </div>
+        {!visible.length && (
+          <p className="m-0 py-20 text-center font-display text-[clamp(24px,2vw,36px)] text-hw-taupe">
+            Nothing in this selection just yet.
+          </p>
         )}
-      </PaginatedResourceSection>
+      </section>
+
+      <section
+        aria-label="Bespoke"
+        className={`${CONTAINER} pb-[clamp(64px,8vw,150px)]`}
+      >
+        <div
+          data-reveal
+          className="relative isolate grid items-center gap-8 overflow-hidden px-[clamp(24px,5vw,96px)] py-[clamp(40px,5vw,96px)] text-hw-bone md:grid-cols-[1.3fr_auto]"
+        >
+          <div className="absolute inset-0 -z-10 hw-panel-gradient" />
+          <div className="flex flex-col gap-4">
+            <Eyebrow className="!text-hw-sand">Commissions</Eyebrow>
+            <h2 className="m-0 font-display text-[clamp(32px,3.4vw,64px)] font-normal leading-[1.05] text-hw-bone">
+              Beyond the Collection.
+            </h2>
+            <p className="m-0 max-w-[52ch] text-[clamp(15px,1vw,19px)] leading-relaxed text-hw-sand">
+              For those seeking something entirely their own, Hatwater House
+              offers individual commissions guided by personal style,
+              proportion, and the finer details.
+            </p>
+          </div>
+          <ArrowPill to={APPOINTMENT_URL} label="Commission a Hat" />
+        </div>
+      </section>
     </div>
   );
 }
 
-const COLLECTION_ITEM_FRAGMENT = `#graphql
-  fragment MoneyCollectionItem on MoneyV2 {
-    amount
-    currencyCode
+function FilterPills({
+  label,
+  categories,
+  total,
+  active,
+  onChange,
+}: {
+  label: string;
+  categories: {id: string; label: string; count: number}[];
+  total: number;
+  active: string;
+  onChange: (id: string) => void;
+}) {
+  const listRef = useRef<HTMLDivElement>(null);
+  const indicatorRef = useRef<HTMLSpanElement>(null);
+  const pills = [{id: ALL, label: 'All', count: total}, ...categories];
+
+  // The espresso indicator glides to whichever pill is active.
+  useEffect(() => {
+    const list = listRef.current;
+    const indicator = indicatorRef.current;
+    if (!list || !indicator) return;
+    let first = true;
+    const move = () => {
+      const button = list.querySelector<HTMLElement>(
+        `[data-pill="${CSS.escape(active)}"]`,
+      );
+      if (!button) return;
+      gsap.to(indicator, {
+        x: button.offsetLeft,
+        width: button.offsetWidth,
+        autoAlpha: 1,
+        duration: first || prefersReducedMotion() ? 0 : 0.7,
+        ease: 'expo.out',
+      });
+      first = false;
+    };
+    move();
+    window.addEventListener('resize', move);
+    return () => window.removeEventListener('resize', move);
+  }, [active, pills.length]);
+
+  return (
+    <div className="flex min-w-0 items-center gap-4">
+      <span className="hidden shrink-0 text-[clamp(11px,0.7vw,13px)] uppercase tracking-[0.18em] text-hw-taupe xl:inline">
+        {label}
+      </span>
+      <div
+        ref={listRef}
+        role="group"
+        aria-label={`Filter by ${label.toLowerCase()}`}
+        className="relative -mx-1 flex min-w-0 gap-1 overflow-x-auto px-1 py-1 [scrollbar-width:none]"
+      >
+        <span
+          ref={indicatorRef}
+          aria-hidden
+          className="invisible absolute bottom-1 left-0 top-1 rounded-full bg-hw-espresso opacity-0"
+        />
+        {pills.map((pill) => {
+          const selected = pill.id === active;
+          return (
+            <button
+              key={pill.id}
+              type="button"
+              data-pill={pill.id}
+              aria-pressed={selected}
+              onClick={() => onChange(pill.id)}
+              className={`relative shrink-0 cursor-pointer whitespace-nowrap rounded-full border px-[clamp(14px,1.1vw,20px)] py-[clamp(7px,0.5vw,10px)] text-[clamp(13px,0.85vw,15px)] tracking-[0.02em] transition-colors duration-500 ${
+                selected
+                  ? 'border-transparent bg-transparent text-hw-bone'
+                  : 'border-hw-espresso/15 bg-transparent text-hw-espresso hover:border-hw-espresso/50'
+              }`}
+            >
+              {pill.label}
+              <sup className="ml-1 text-[0.7em] opacity-60">{pill.count}</sup>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function SortSelect({
+  value,
+  onChange,
+}: {
+  value: SortValue;
+  onChange: (value: SortValue) => void;
+}) {
+  return (
+    <label className="relative flex shrink-0 items-center gap-3 self-end md:self-auto">
+      <span className="text-[clamp(11px,0.7vw,13px)] uppercase tracking-[0.18em] text-hw-taupe">
+        Sort by
+      </span>
+      <span className="relative">
+        <select
+          value={value}
+          onChange={(event) => onChange(event.target.value as SortValue)}
+          className="cursor-pointer appearance-none rounded-full border border-hw-espresso/15 bg-white py-[clamp(7px,0.5vw,10px)] pl-4 pr-10 font-grotesk text-[clamp(13px,0.85vw,15px)] text-hw-espresso outline-none transition-colors hover:border-hw-espresso/50 focus-visible:border-hw-espresso"
+        >
+          {SORT_OPTIONS.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+        <svg
+          aria-hidden
+          viewBox="0 0 12 8"
+          className="pointer-events-none absolute right-4 top-1/2 w-[10px] -translate-y-1/2 text-hw-espresso"
+          fill="none"
+        >
+          <path d="M1 1.5l5 5 5-5" stroke="currentColor" strokeWidth="1.4" />
+        </svg>
+      </span>
+    </label>
+  );
+}
+
+const SHOP_PRODUCTS_QUERY = `#graphql
+  fragment ShopImage on Image {
+    id
+    url
+    altText
+    width
+    height
   }
-  fragment CollectionItem on Product {
+  fragment ShopProduct on Product {
     id
     handle
     title
+    productType
+    description
+    createdAt
     featuredImage {
-      id
-      altText
-      url
-      width
-      height
+      ...ShopImage
+    }
+    images(first: 2) {
+      nodes {
+        ...ShopImage
+      }
     }
     priceRange {
       minVariantPrice {
-        ...MoneyCollectionItem
+        amount
+        currencyCode
       }
       maxVariantPrice {
-        ...MoneyCollectionItem
+        amount
+        currencyCode
+      }
+    }
+    collections(first: 4) {
+      nodes {
+        handle
+        title
+      }
+    }
+    options(first: 3) {
+      name
+      optionValues {
+        name
+      }
+    }
+    selectedOrFirstAvailableVariant {
+      id
+      title
+      availableForSale
+      price {
+        amount
+        currencyCode
+      }
+      image {
+        ...ShopImage
+      }
+      selectedOptions {
+        name
+        value
+      }
+      product {
+        handle
+        title
       }
     }
   }
-` as const;
-
-// NOTE: https://shopify.dev/docs/api/storefront/latest/objects/product
-const CATALOG_QUERY = `#graphql
-  query Catalog(
+  query ShopProducts(
     $country: CountryCode
     $language: LanguageCode
-    $first: Int
-    $last: Int
-    $startCursor: String
-    $endCursor: String
+    $first: Int!
   ) @inContext(country: $country, language: $language) {
-    products(first: $first, last: $last, before: $startCursor, after: $endCursor) {
+    products(first: $first, sortKey: BEST_SELLING) {
       nodes {
-        ...CollectionItem
-      }
-      pageInfo {
-        hasPreviousPage
-        hasNextPage
-        startCursor
-        endCursor
+        ...ShopProduct
       }
     }
   }
-  ${COLLECTION_ITEM_FRAGMENT}
 ` as const;

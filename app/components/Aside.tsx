@@ -59,13 +59,30 @@ export function Aside({
       className={`overlay ${expanded ? 'expanded' : ''}`}
       role="dialog"
       aria-labelledby={id}
+      aria-hidden={!expanded}
     >
-      <button className="close-outside" onClick={close} />
-      <aside>
+      <button
+        className="close-outside"
+        onClick={close}
+        tabIndex={-1}
+        aria-hidden
+      />
+      <aside data-aside={type}>
         <header>
           <h3 id={id}>{heading}</h3>
-          <button className="close reset" onClick={close} aria-label="Close">
-            &times;
+          <button
+            type="button"
+            className="aside-close group"
+            onClick={close}
+            aria-label="Close"
+          >
+            <span
+              aria-hidden
+              className="relative block size-3.5 transition-transform duration-500 ease-out group-hover:rotate-90"
+            >
+              <span className="absolute left-0 top-1/2 h-px w-full rotate-45 bg-current" />
+              <span className="absolute left-0 top-1/2 h-px w-full -rotate-45 bg-current" />
+            </span>
           </button>
         </header>
         <main>{children}</main>

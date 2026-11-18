@@ -1,12 +1,13 @@
-import {forwardRef, useImperativeHandle, useRef} from 'react';
+import { forwardRef, useImperativeHandle, useRef } from 'react';
 import {
   gsap,
   prefersReducedMotion,
   unlockScroll,
   useGsapContext,
 } from '~/lib/gsap';
-import {HeroHeader} from './HeroHeader';
-import {PillButton} from './PillButton';
+import { HeroHeader } from './HeroHeader';
+import { APPOINTMENT_URL } from '~/components/site/links';
+import { PillButton } from './PillButton';
 
 export type HeroIntroHandle = {
   /** Plays the hero entrance (Figma "Variant2" -> "Variant3" -> "Variant4"). */
@@ -35,7 +36,7 @@ export const HeroLayer = forwardRef<HeroIntroHandle>(
     useGsapContext(rootRef, () => {
       const intro = gsap.timeline({
         paused: true,
-        defaults: {ease: 'power3.out'},
+        defaults: { ease: 'power3.out' },
         onComplete: unlockScroll,
       });
 
@@ -43,33 +44,33 @@ export const HeroLayer = forwardRef<HeroIntroHandle>(
         // Variant2 -> Variant3: monogram is wiped in top-down, header drops in.
         .fromTo(
           '[data-anim="monogram"]',
-          {clipPath: 'inset(0% 0% 100% 0%)'},
-          {clipPath: 'inset(0% 0% 0% 0%)', duration: 1.2, ease: 'power2.inOut'},
+          { clipPath: 'inset(0% 0% 100% 0%)' },
+          { clipPath: 'inset(0% 0% 0% 0%)', duration: 1.2, ease: 'power2.inOut' },
         )
         .fromTo(
           '[data-anim="hero-header"]',
-          {yPercent: -230},
-          {yPercent: 0, duration: 1},
+          { yPercent: -230 },
+          { yPercent: 0, duration: 1 },
           0.2,
         )
         // Variant3 -> Variant4: the model's frame grows upwards from y 1020,
         // the headline rises inside its mask and the CTA fades in.
         .fromTo(
           '[data-anim="woman"]',
-          {clipPath: 'inset(72.6% 0% 0% 0%)'},
-          {clipPath: 'inset(0% 0% 0% 0%)', duration: 1.3, ease: 'power2.inOut'},
+          { clipPath: 'inset(72.6% 0% 0% 0%)' },
+          { clipPath: 'inset(0% 0% 0% 0%)', duration: 1.3, ease: 'power2.inOut' },
           '-=0.2',
         )
         .fromTo(
           '[data-anim="headline"]',
-          {yPercent: 100},
-          {yPercent: 0, duration: 1},
+          { yPercent: 110 },
+          { yPercent: 0, duration: 1 },
           '-=0.8',
         )
         .fromTo(
           '[data-anim="hero-cta"]',
-          {autoAlpha: 0},
-          {autoAlpha: 1, duration: 0.6, ease: 'power1.out'},
+          { autoAlpha: 0 },
+          { autoAlpha: 1, duration: 0.6, ease: 'power1.out' },
           '-=0.5',
         );
 
@@ -107,22 +108,25 @@ export const HeroLayer = forwardRef<HeroIntroHandle>(
         </div>
 
         <div className="absolute left-126 top-447 z-20 flex flex-col gap-24">
-          <div className="h-215 w-443 overflow-hidden">
+          <div className="h-145 w-443 overflow-hidden">
             <h1
               data-anim="headline"
-              className="m-0 font-display fs-62 lh-66 font-normal capitalize text-hw-mist"
+              className="m-0 font-display fs-62 lh-66 font-normal text-hw-mist"
             >
-              All of our hats
+              Made for One.
               <br />
-              are made just
-              <br />
-              for you
+              Made for You.
             </h1>
           </div>
-          <div data-anim="hero-cta">
+          <div data-anim="hero-cta" className="flex flex-col gap-28">
+            <p className="m-0 w-340 font-grotesk fs-21 lh-31 text-hw-mist">
+              Western-inspired hats, individually shaped and finished in Los
+              Angeles.
+            </p>
             <PillButton
-              to="/pages/contact"
-              label="Custom request"
+              to={APPOINTMENT_URL}
+              label="Commission a Hat"
+              width={262}
               tone="taupe"
             />
           </div>
