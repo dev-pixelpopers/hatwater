@@ -5,6 +5,28 @@
 
 @import 'tailwindcss';
 
+/*
+ * `compact:` = phones, portrait tablets and other narrow or portrait
+ * viewports. The homepage swaps its scaled 1919 x 994 artboard for a fluid
+ * layout there, since the artboard would shrink to an unreadable letterbox.
+ */
+/* Height of the site header (logo + vertical padding, see Header.tsx);
+ * also used by the menu overlay's top bar and the About hero. */
+:root {
+  /* Keep the scrollbar's space when the menu/cart lock scrolling, so the
+   * centred header doesn't shift under the cursor. */
+  scrollbar-gutter: stable;
+  --header-h: calc(
+    2 * clamp(12px, 2.03vw, 39px) + clamp(59.68px, 5.993vw, 115px)
+  );
+}
+
+@custom-variant compact {
+  @media (max-width: 1023.98px), (orientation: portrait) {
+    @slot;
+  }
+}
+
 /* ------------------------------------------------------------------
  * Hatwater House - design tokens (pulled from Figma node 176:209)
  * ------------------------------------------------------------------ */
@@ -34,14 +56,13 @@
 
 /*
  * The Figma file uses licensed typefaces (Valturin, Neue Haas Grotesk).
- * Drop the licensed .woff2 files into public/assets/fonts/ with these names;
- * until then the fallbacks declared in --font-* are used.
+ * Valturin ships in public/assets/fonts/ (preloaded in root.tsx). Drop the
+ * Neue Haas .woff2 files there with these names; until then the fallbacks
+ * declared in --font-* are used.
  */
 @font-face {
   font-family: 'Valturin';
-  src:
-    local('Valturin'),
-    url('/assets/fonts/Valturin-Regular.woff2') format('woff2');
+  src: url('/assets/fonts/Valturin-Regular.woff2') format('woff2');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -148,6 +169,17 @@
   );
 }
 
+/*
+ * Frosted glass (Figma 16px background blur). GSAP scrubs --blur-strength
+ * (0 -> 1) rather than the filter itself so both properties interpolate
+ * smoothly in every engine. Needs a translucent background to show.
+ */
+@utility hw-frost {
+  --blur-amount: calc(var(--spacing) * 16 * var(--blur-strength, 1));
+  -webkit-backdrop-filter: blur(var(--blur-amount));
+  backdrop-filter: blur(var(--blur-amount));
+}
+
 /* Masked solid-colour icon/logo (Figma "Mask group" layers). */
 @utility hw-mask {
   mask-repeat: no-repeat;
@@ -175,6 +207,31 @@
   .hw img {
     border-radius: 0;
     max-width: none;
+  }
+
+  /* Inner pages (shop / about / contact) size their own images too. */
+  .hw-page img {
+    border-radius: 0;
+  }
+}
+
+/* Cart count badge bump when a line is added. */
+@keyframes hw-pop {
+  0% {
+    scale: 0.4;
+  }
+  100% {
+    scale: 1;
+  }
+}
+
+/* Checkmark stroke draw (paths use pathLength="1"). */
+@keyframes hw-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
   }
 }
 

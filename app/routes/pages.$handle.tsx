@@ -1,6 +1,12 @@
-import {useLoaderData} from 'react-router';
+import {redirect, useLoaderData} from 'react-router';
 import type {Route} from './+types/pages.$handle';
 import {redirectIfHandleIsLocalized} from '~/lib/redirect';
+
+/** CMS page handles that now have their own designed routes. */
+const DESIGNED_PAGES: Record<string, string> = {
+  about: '/about',
+  contact: '/contact',
+};
 
 export const meta: Route.MetaFunction = ({data}) => {
   return [{title: `Hydrogen | ${data?.page.title ?? ''}`}];
@@ -24,6 +30,9 @@ async function loadCriticalData({context, request, params}: Route.LoaderArgs) {
   if (!params.handle) {
     throw new Error('Missing page handle');
   }
+
+  const designedPage = DESIGNED_PAGES[params.handle];
+  if (designedPage) throw redirect(designedPage, 301);
 
   const [{page}] = await Promise.all([
     context.storefront.query(PAGE_QUERY, {

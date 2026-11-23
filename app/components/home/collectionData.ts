@@ -1,9 +1,11 @@
+import type {HomepageProductFragment} from 'storefrontapi.generated';
+
 /**
  * Hat cut-outs and carousel geometry for "The California Collection"
  * (Figma variants 8 -> 10 and 14). Every value is in Figma pixels.
  */
 
-export type HatKey = 'lj' | 'rca' | 'gus' | 'white';
+export type HatKey = 'lj' | 'rca' | 'pacific' | 'gus';
 
 export type HatArt = {
   src: string;
@@ -34,17 +36,19 @@ export const HATS: Record<HatKey, HatArt> = {
     crop: {width: '100.18%', height: '208.19%', left: '-0.09%', top: '-54.09%'},
     centerRotation: -14.84,
   },
-  gus: {
+  // The asset file names predate the final product names: hat-gus.png is the
+  // brown Pacific Rim, hat-white.png is the cream California Gus.
+  pacific: {
     src: '/assets/hat-gus.png',
-    alt: 'California Gus – cream hat with a brown ribbon',
+    alt: 'Pacific Rim – brown felt hat with a grosgrain ribbon',
     width: 293.25,
     height: 165,
     crop: {width: '100%', height: '235.79%', left: '0%', top: '-58.34%'},
     centerRotation: -18.15,
   },
-  white: {
+  gus: {
     src: '/assets/hat-white.png',
-    alt: 'White felt cowboy hat',
+    alt: 'California Gus – cream felt hat with a brown ribbon',
     width: 276.5,
     height: 170,
     crop: {width: '100%', height: '215.93%', left: '0%', top: '-53.17%'},
@@ -88,28 +92,68 @@ export type CarouselHat = {id: string; hat: HatKey; slot: number};
 
 /** The centre item (index 2) is the hat that flies off the chair. */
 export const CAROUSEL: CarouselHat[] = [
-  {id: 'white-a', hat: 'white', slot: -2},
-  {id: 'gus-a', hat: 'gus', slot: -1},
+  {id: 'gus-a', hat: 'gus', slot: -2},
+  {id: 'pacific-a', hat: 'pacific', slot: -1},
   {id: 'lj-a', hat: 'lj', slot: 0},
   {id: 'rca', hat: 'rca', slot: 1},
-  {id: 'gus-b', hat: 'gus', slot: 2},
+  {id: 'pacific-b', hat: 'pacific', slot: 2},
   {id: 'lj-b', hat: 'lj', slot: 3},
-  {id: 'white-b', hat: 'white', slot: 4},
+  {id: 'gus-b', hat: 'gus', slot: 4},
 ];
 export const HERO_HAT_ID = 'lj-a';
 /** The LJ that lands in the ring after the last step and flies off. */
 export const FINAL_HAT_ID = 'lj-b';
 export const CAROUSEL_STEPS = 3;
 
-export const COLLECTION_ITEMS = [
+export type CollectionItem = {
+  name: string;
+  copy: string;
+  /** Row offset inside the name list, in Figma pixels. */
+  top: number;
+  /** Live Storefront API product shown at this carousel step, if any. */
+  product?: HomepageProductFragment;
+};
+
+/** Static copy, also the fallback when the store returns no products. */
+export const COLLECTION_ITEMS: CollectionItem[] = [
   {name: 'The LJ', top: 20},
   {name: 'Everyday RCA', top: 212},
-  {name: 'California Gus', top: 415},
+  {name: 'Pacific Rim', top: 415},
   {name: 'The LJ', top: 630},
 ].map((item) => ({
   ...item,
-  copy: "At fifteen, Mark bought his first cowboy hat one inspired by Little Joe Cartwright's on Bonanza.",
+  copy: 'A distinctive silhouette, individually shaped and finished to order.',
 }));
+
+/**
+ * One item per carousel step. Live products replace the names and copy; the
+ * hat cut-outs stay static because the carousel geometry is tuned to them.
+ * A product whose title matches a step's hat lands on that step, the rest
+ * fill the remaining steps in order (repeating if the store has fewer).
+ */
+export function collectionItems(
+  products: HomepageProductFragment[],
+): CollectionItem[] {
+  if (!products.length) return COLLECTION_ITEMS;
+  const byTitle = (name: string) =>
+    products.find(
+      (product) => product.title.trim().toLowerCase() === name.toLowerCase(),
+    );
+  const unmatched = products.filter(
+    (product) => !COLLECTION_ITEMS.some((item) => byTitle(item.name) === product),
+  );
+  const spare = unmatched.length ? unmatched : products;
+  let next = 0;
+  return COLLECTION_ITEMS.map((item) => {
+    const product = byTitle(item.name) ?? spare[next++ % spare.length];
+    return {
+      ...item,
+      name: product.title,
+      copy: product.description || item.copy,
+      product,
+    };
+  });
+}
 
 /** Vertical offset of the name list for each carousel step (Figma 8, 9, 10, 14). */
 export const NAME_OFFSETS = [0, -210, -410, -610];

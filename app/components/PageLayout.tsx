@@ -7,14 +7,16 @@ import type {
 } from 'storefrontapi.generated';
 import {Aside} from '~/components/Aside';
 import {Footer} from '~/components/Footer';
-import {Header, HeaderMenu} from '~/components/Header';
+import {Header} from '~/components/Header';
 import {CartMain} from '~/components/CartMain';
+import {MenuOverlay} from '~/components/MenuOverlay';
 import {
   SEARCH_ENDPOINT,
   SearchFormPredictive,
 } from '~/components/SearchFormPredictive';
 import {SearchResultsPredictive} from '~/components/SearchResultsPredictive';
 
+/** The footer / login / domain fields are loaded by root but unused by the brand chrome. */
 interface PageLayoutProps {
   cart: Promise<CartApiQueryFragment | null>;
   footer: Promise<FooterQuery | null>;
@@ -24,50 +26,57 @@ interface PageLayoutProps {
   children?: React.ReactNode;
 }
 
-export function PageLayout({
-  cart,
-  children = null,
-  footer,
-  header,
-  isLoggedIn,
-  publicStoreDomain,
-}: PageLayoutProps) {
-  // Routes that render their own header/footer opt out via `handle`.
-  const hideChrome = useMatches().some(
+export function PageLayout({cart, children = null, header}: PageLayoutProps) {
+  // Routes that render their own header/footer opt out via `handle`, and
+  // designed full-width pages drop the skeleton's main margin.
+  const handles = useMatches().map(
     (match) =>
-      (match.handle as {hideLayoutChrome?: boolean} | undefined)
-        ?.hideLayoutChrome,
+      match.handle as
+        | {hideLayoutChrome?: boolean; fullBleed?: boolean}
+        | undefined,
   );
+  const hideChrome = handles.some((handle) => handle?.hideLayoutChrome);
+  const fullBleed = handles.some((handle) => handle?.fullBleed);
 
   return (
     <Aside.Provider>
       <CartAside cart={cart} />
       <SearchAside />
-      <MobileMenuAside header={header} publicStoreDomain={publicStoreDomain} />
-      {header && !hideChrome && (
-        <Header
-          header={header}
-          cart={cart}
-          isLoggedIn={isLoggedIn}
-          publicStoreDomain={publicStoreDomain}
-        />
+      <MenuOverlay cart={cart} />
+      {/* Routes that hide the chrome still get it in the compact layout. */}
+      {header && (
+        <Header cart={cart} className={hideChrome ? 'hidden compact:block' : ''} />
       )}
-      <main className={hideChrome ? 'm-0' : undefined}>{children}</main>
-      {!hideChrome && (
-        <Footer
-          footer={footer}
-          header={header}
-          publicStoreDomain={publicStoreDomain}
-        />
-      )}
+      <main className={hideChrome || fullBleed ? 'm-0' : undefined}>
+        {children}
+      </main>
+      <Footer className={hideChrome ? 'hidden compact:block' : ''} />
     </Aside.Provider>
   );
 }
 
 function CartAside({cart}: {cart: PageLayoutProps['cart']}) {
   return (
-    <Aside type="cart" heading="CART">
-      <Suspense fallback={<p>Loading cart ...</p>}>
+    <Aside
+      type="cart"
+      heading={
+        <>
+          Your Cart
+          <Suspense fallback={null}>
+            <Await resolve={cart} errorElement={null}>
+              {(cart) =>
+                cart?.totalQuantity ? (
+                  <span className="aside-count">({cart.totalQuantity})</span>
+                ) : null
+              }
+            </Await>
+          </Suspense>
+        </>
+      }
+    >
+      <Suspense
+        fallback={<p className="cart-loading">Loading your cart…</p>}
+      >
         <Await resolve={cart}>
           {(cart) => {
             return <CartMain cart={cart} layout="aside" />;
@@ -157,27 +166,5 @@ function SearchAside() {
         </SearchResultsPredictive>
       </div>
     </Aside>
-  );
-}
-
-function MobileMenuAside({
-  header,
-  publicStoreDomain,
-}: {
-  header: PageLayoutProps['header'];
-  publicStoreDomain: PageLayoutProps['publicStoreDomain'];
-}) {
-  return (
-    header.menu &&
-    header.shop.primaryDomain?.url && (
-      <Aside type="mobile" heading="MENU">
-        <HeaderMenu
-          menu={header.menu}
-          viewport="mobile"
-          primaryDomainUrl={header.shop.primaryDomain.url}
-          publicStoreDomain={publicStoreDomain}
-        />
-      </Aside>
-    )
   );
 }

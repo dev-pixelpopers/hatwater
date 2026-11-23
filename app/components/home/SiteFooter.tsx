@@ -1,46 +1,13 @@
 import {Link} from 'react-router';
-
-const QUICK_LINKS = [
-  [
-    {label: 'Home', to: '/'},
-    {label: 'About', to: '/pages/about'},
-    {label: 'Product', to: '/collections/all'},
-  ],
-  [
-    {label: 'Shop', to: '/collections'},
-    {label: 'Reviews', to: '/pages/reviews'},
-    {label: 'Contact', to: '/pages/contact'},
-  ],
-];
-
-const SOCIAL = [
-  {
-    label: 'Instagram',
-    href: 'https://www.instagram.com/',
-    icon: '/assets/icon-instagram-mask.png',
-  },
-  {
-    label: 'Facebook',
-    href: 'https://www.facebook.com/',
-    icon: '/assets/icon-facebook-mask.png',
-  },
-  {
-    label: 'Tiktok',
-    href: 'https://www.tiktok.com/',
-    icon: '/assets/icon-tiktok-mask.png',
-  },
-];
-
-const LEGAL = [
-  {label: 'Terms', to: '/policies/terms-of-service'},
-  {label: 'Privacy', to: '/policies/privacy-policy'},
-  {label: 'Returns', to: '/policies/refund-policy'},
-];
-
-const maskStyle = (url: string) => ({
-  maskImage: `url(${url})`,
-  WebkitMaskImage: `url(${url})`,
-});
+import {
+  BRAND_TAGLINE,
+  FOOTER_LINKS,
+  LEGAL_LINKS as LEGAL,
+  SOCIAL_LINKS as SOCIAL,
+  STUDIO,
+  VISIT_URL,
+  maskStyle,
+} from '~/components/site/links';
 
 /**
  * Brand footer (Figma "Group 27", Variant30). Coordinates are relative to the
@@ -62,50 +29,50 @@ export function SiteFooter() {
         />
       </div>
 
-      <div className="absolute left-124 top-357 flex items-start">
-        <Link
-          to="/"
-          aria-label="Hatwater House home"
-          className="mt-9 block h-160 w-257.5"
-        >
-          <span
-            className="block size-full bg-hw-bone hw-mask"
-            style={maskStyle('/assets/logo-mask.png')}
-          />
-        </Link>
+      <div className="absolute left-124 top-330 flex items-start">
+        <div className="flex w-340 flex-col items-start">
+          <Link
+            to="/"
+            aria-label="Hatwater House by Mark Alex, home"
+            className="mt-9 block h-160 w-257.5"
+          >
+            <span
+              className="block size-full bg-hw-bone hw-mask"
+              style={maskStyle('/assets/logo-mask.png')}
+            />
+          </Link>
+          <p className="m-0 mt-28 w-320 font-display fs-22 lh-32 text-hw-bone">
+            {BRAND_TAGLINE}
+          </p>
+        </div>
 
-        <nav aria-label="Quick links" className="ml-164.5 flex flex-col">
-          <h2 className="m-0 font-display font-normal fs-27.5 lh-45 tracking-[0.02em] capitalize">
-            Quick links
+        <nav aria-label="Footer" className="ml-110 flex flex-col">
+          <h2 className="m-0 font-display font-normal fs-27.5 lh-45 tracking-[0.02em]">
+            Explore
           </h2>
           <div className="mt-7 flex items-start">
-            <span className="ml-10 mt-8 h-109 w-px bg-hw-rule" />
-            {QUICK_LINKS.map((column, index) => (
-              <ul
-                key={column[0].label}
-                className={`m-0 list-none p-0 ${index === 0 ? 'ml-33 w-117' : ''}`}
-              >
-                {column.map((link) => (
-                  <li key={link.label} className="m-0">
-                    <Link
-                      to={link.to}
-                      className="font-grotesk-display fs-20 lh-41 tracking-[-0.02em] text-white underline"
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            ))}
+            <span className="ml-10 mt-8 h-150 w-px bg-hw-rule" />
+            <ul className="m-0 ml-29 list-none p-0">
+              {FOOTER_LINKS.map((link) => (
+                <li key={link.to} className="m-0">
+                  <Link
+                    to={link.to}
+                    className="whitespace-nowrap font-grotesk-display fs-20 lh-41 tracking-[-0.02em] text-white underline"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </div>
         </nav>
 
-        <nav aria-label="Social" className="ml-207 flex flex-col">
-          <h2 className="m-0 font-display font-normal fs-27.5 lh-45 tracking-[0.02em] capitalize">
-            Connect with us
+        <nav aria-label="Social" className="ml-130 flex flex-col">
+          <h2 className="m-0 font-display font-normal fs-27.5 lh-45 tracking-[0.02em]">
+            Connect
           </h2>
-          <div className="mt-1 flex items-start">
-            <span className="ml-12 mt-14 h-109 w-px bg-hw-rule" />
+          <div className="mt-7 flex items-start">
+            <span className="ml-10 mt-8 h-109 w-px bg-hw-rule" />
             <ul className="m-0 ml-29 list-none p-0">
               {SOCIAL.map((item) => (
                 <li key={item.label} className="m-0">
@@ -126,6 +93,33 @@ export function SiteFooter() {
             </ul>
           </div>
         </nav>
+
+        <div className="ml-130 flex w-400 flex-col items-start">
+          <h2 className="m-0 font-display font-normal fs-27.5 lh-45 tracking-[0.02em]">
+            Visit the House
+          </h2>
+          <p className="m-0 mt-12 font-grotesk fs-19 lh-30 text-hw-bone">
+            {STUDIO.street}
+            <br />
+            {STUDIO.city}
+            <br />
+            Tel:{' '}
+            <a
+              href={STUDIO.phoneHref}
+              className="text-hw-bone no-underline"
+            >
+              {STUDIO.phone}
+            </a>
+            <br />
+            Hours: {STUDIO.hours}
+          </p>
+          <Link
+            to={VISIT_URL}
+            className="mt-24 flex items-center gap-12 border-0 border-b border-solid border-hw-bone/60 pb-6 font-grotesk fs-16 lh-20 font-medium uppercase tracking-[0.1em] text-hw-bone no-underline"
+          >
+            Plan Your Visit <span aria-hidden>→</span>
+          </Link>
+        </div>
       </div>
 
       <div className="absolute left-120 right-108 top-733 grid grid-cols-[1fr_auto_1fr] items-center">

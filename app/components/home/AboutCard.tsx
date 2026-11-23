@@ -1,7 +1,13 @@
 import {PillButton} from './PillButton';
 
+/** Copy geometry in Figma pixels: the box, the paragraph's top and its lines. */
+export const ABOUT_BOX_HEIGHT = 518;
+export const ABOUT_COPY_TOP = 49;
+export const ABOUT_LINE_HEIGHT = 60;
+export const ABOUT_LINES = 7;
+
 /**
- * "Made just for you" card that slides over the hero (Figma "Group 22").
+ * Brand introduction card that slides over the hero (Figma "Group 22").
  * Positioned in hero-frame coordinates on the showcase track.
  */
 export function AboutCard() {
@@ -28,35 +34,49 @@ export function AboutCard() {
       <div className="pointer-events-none absolute left-80 top-1097 z-30 h-278 w-1755 bg-linear-to-b from-white/0 to-white to-96%" />
 
       <div className="absolute left-643 top-1400 z-10 flex w-1124 flex-col gap-5">
-        <div
-          data-anim="about-copy"
-          className="relative h-518 w-1124 overflow-hidden"
-        >
-          <p className="m-0 ml-18 mt-49 w-1096 font-display fs-36 lh-60 capitalize text-hw-taupe">
-            <span className="text-hw-sand">
-              All of our hats are made just for you—not pulled from a shelf.
-              Once your order is placed,
-            </span>{' '}
-            we begin crafting your hat from the ground up, shaping it to your
-            specifications, and finishing it by hand. Because we source premium
-            felts in a variety of colors and qualities,{' '}
-            <span className="text-hw-sand">
-              production times may vary depending on material availability. We
-              appreciate your patience,
-            </span>{' '}
-            because good things take time—and a great hat is one of them
-          </p>
-          {/* Frosted panel that slides down to reveal the copy (Figma "Rectangle 145") */}
+        {/* No clip, overflow or transform on this wrapper: the frosted panel
+            must share a backdrop root with the copy it blurs. */}
+        <div className="relative h-518 w-1124">
           <div
-            data-anim="about-blur"
-            className="absolute left-0 top-49 h-432 w-1124 bg-white/30 backdrop-blur-[calc(var(--spacing)*16)]"
-          />
+            data-anim="about-copy"
+            className="absolute inset-0 overflow-hidden"
+          >
+            {/* Every line sits on the 60px grid the frosted strips follow. */}
+            <h2 className="m-0 ml-18 mt-49 font-display fs-48 lh-60 font-normal text-hw-cocoa">
+              An Individual Expression.
+            </h2>
+            <p className="m-0 ml-18 mt-60 w-1040 font-display fs-34 lh-60 text-hw-taupe">
+              Rooted in the Western heritage of California, Hatwater House
+              brings traditional hatmaking craftsmanship to a modern expression
+              of personal style.
+            </p>
+            <p className="m-0 ml-18 w-1040 font-display fs-34 lh-60 text-hw-chestnut">
+              Every hat begins with a considered silhouette and is shaped,
+              fitted, and finished with the individual in mind.
+            </p>
+          </div>
+          {/* Frosted panel over the copy (Figma "Rectangle 145"), split into
+              one strip per line so the copy thaws line by line. Siblings of
+              the clipped copy, not children: an ancestor clip-path is a
+              backdrop root and leaves backdrop-filter nothing to blur. Each
+              strip is clipped and un-blurred on itself (see ShowcaseScene). */}
+          {Array.from({length: ABOUT_LINES}, (_, line) => (
+            <div
+              key={line}
+              data-anim="about-blur"
+              className="pointer-events-none absolute left-0 w-1124 bg-white/30 hw-frost"
+              style={{
+                top: `calc(var(--spacing) * ${ABOUT_COPY_TOP + line * ABOUT_LINE_HEIGHT})`,
+                height: `calc(var(--spacing) * ${ABOUT_LINE_HEIGHT})`,
+              }}
+            />
+          ))}
         </div>
         <PillButton
-          to="/pages/about"
-          label="Read more"
-          width={240}
-          gap={27}
+          to="/about"
+          label="Discover Our Story"
+          width={262}
+          gap={18}
           className="ml-18"
         />
       </div>
