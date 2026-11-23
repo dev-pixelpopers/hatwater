@@ -1,6 +1,6 @@
-import {useRef} from 'react';
-import {CONTAINER, Eyebrow} from '~/components/site/ui';
-import {addClip, createScrubTimeline, gsap, inset, useGsapContext} from '~/lib/gsap';
+import { useRef } from 'react';
+import { CONTAINER, Eyebrow } from '~/components/site/ui';
+import { addClip, createScrubTimeline, gsap, inset, useGsapContext } from '~/lib/gsap';
 
 const STAGES = [
   {
@@ -9,7 +9,7 @@ const STAGES = [
       'The process begins with the individual. We consider head shape, proportions, personal style, and how the hat will be worn. Crown height, brim width, and fit are carefully considered to create a silhouette that feels naturally yours.',
     ],
     detail: 'Fitted to the Individual',
-    image: '/assets/founder-portrait.png',
+    image: '/assets/fitting.jpg',
     alt: 'Mark Alex, founder of Hatwater House, in a dark felt western hat',
     position: '50% 20%',
   },
@@ -66,7 +66,7 @@ export function CraftShowcase() {
     const steps = gsap.utils.toArray<HTMLElement>('[data-craft="step"]');
 
     // A short hold at the start and end so the first / last stage can be read.
-    tl.to({}, {duration: 0.3}, 0);
+    tl.to({}, { duration: 0.3 }, 0);
     STAGES.forEach((_, index) => {
       if (index === 0) return;
       const at = index - 0.7;
@@ -75,28 +75,28 @@ export function CraftShowcase() {
       });
       tl.fromTo(
         images[index].querySelector('img'),
-        {scale: 1.18},
-        {scale: 1, ease: 'power2.out', immediateRender: false},
+        { scale: 1.18 },
+        { scale: 1, ease: 'power2.out', immediateRender: false },
         at,
       )
-        .to(images[index - 1].querySelector('img'), {scale: 1.08, yPercent: -6}, at)
-        .to(copies[index - 1], {autoAlpha: 0, y: -40, duration: 0.4}, at)
+        .to(images[index - 1].querySelector('img'), { scale: 1.08, yPercent: -6 }, at)
+        .to(copies[index - 1], { autoAlpha: 0, y: -40, duration: 0.4 }, at)
         .fromTo(
           copies[index],
-          {autoAlpha: 0, y: 48},
-          {autoAlpha: 1, y: 0, duration: 0.55, immediateRender: false},
+          { autoAlpha: 0, y: 48 },
+          { autoAlpha: 1, y: 0, duration: 0.55, immediateRender: false },
           at + 0.3,
         )
-        .to(steps[index - 1], {opacity: 0.35, duration: 0.4}, at + 0.3)
-        .to(steps[index], {opacity: 1, duration: 0.4}, at + 0.3);
+        .to(steps[index - 1], { opacity: 0.35, duration: 0.4 }, at + 0.3)
+        .to(steps[index], { opacity: 1, duration: 0.4 }, at + 0.3);
     });
     tl.fromTo(
       '[data-craft="progress"]',
-      {scaleY: 0},
-      {scaleY: 1, ease: 'none', duration: tl.duration()},
+      { scaleY: 0 },
+      { scaleY: 1, ease: 'none', duration: tl.duration() },
       0,
     );
-    tl.to({}, {duration: 0.3});
+    tl.to({}, { duration: 0.3 });
   });
 
   return (
@@ -128,9 +128,8 @@ export function CraftShowcase() {
                   key={stage.title}
                   data-craft="copy"
                   aria-hidden
-                  className={`col-start-1 row-start-1 flex flex-col gap-[clamp(12px,1.2vw,22px)] ${
-                    index > 0 ? 'invisible opacity-0' : ''
-                  }`}
+                  className={`col-start-1 row-start-1 flex flex-col gap-[clamp(12px,1.2vw,22px)] ${index > 0 ? 'invisible opacity-0' : ''
+                    }`}
                 >
                   <span className="font-grotesk text-[clamp(13px,0.85vw,16px)] font-medium tracking-[0.18em] text-hw-copper">
                     {String(index + 1).padStart(2, '0')} /{' '}
@@ -172,14 +171,14 @@ export function CraftShowcase() {
                 key={stage.title}
                 data-craft="image"
                 className="absolute inset-0 m-0 overflow-hidden"
-                style={index > 0 ? {clipPath: inset(100, 0, 0, 0)} : undefined}
+                style={index > 0 ? { clipPath: inset(100, 0, 0, 0) } : undefined}
               >
                 <img
                   src={stage.image}
                   alt={stage.alt}
                   loading={index === 0 ? 'eager' : 'lazy'}
                   className="size-full object-cover"
-                  style={{objectPosition: stage.position}}
+                  style={{ objectPosition: stage.position }}
                 />
               </figure>
             ))}
