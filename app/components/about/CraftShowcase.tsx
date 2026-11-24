@@ -32,7 +32,7 @@ const STAGES = [
       'The crown is creased, the brim shaped, and each line refined until the silhouette achieves the intended balance.',
     ],
     detail: 'Shaped by Hand in Los Angeles',
-    image: '/assets/steam-and-shape.jfif',
+    image: '/assets/steam-and-shape.png',
     alt: 'A felt hat on a brim board beside the workshop steamer',
     position: '50% 62%',
   },
